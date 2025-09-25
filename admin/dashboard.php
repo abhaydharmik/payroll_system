@@ -5,12 +5,14 @@ checkRole('admin');
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | Payroll System</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
+
 <body class="bg-gray-100 min-h-screen flex flex-col">
 
     <!-- Navbar -->
@@ -58,6 +60,18 @@ checkRole('admin');
                 <p class="text-gray-600 text-sm mt-2">View and download past salary reports.</p>
             </a>
 
+            <!-- Manage Departments -->
+            <a href="departments.php" class="bg-white rounded-xl shadow-md p-6 hover:shadow-lg transition border-l-4 border-indigo-600">
+                <h2 class="text-lg font-semibold text-gray-800">🏢 Manage Departments</h2>
+                <p class="text-gray-600 text-sm mt-2">Add, edit, and manage company departments.</p>
+            </a>
+
+            <a href="designations.php"
+                class="block bg-purple-600 hover:bg-purple-700 text-white text-center px-4 py-3 rounded-lg shadow">
+                📌 Manage Designations
+            </a>
+
+
         </div>
     </main>
 
@@ -67,4 +81,5 @@ checkRole('admin');
     </footer>
 
 </body>
+
 </html>

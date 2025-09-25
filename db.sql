@@ -49,3 +49,22 @@ INSERT INTO users (name, email, password, role)
 VALUES ('Admin User', 'admin@example.com', 
         '$2y$10$9pwuGJ5boe5FVtSlS7TeF.qb/ZvyAw7rN7HJQZ8G3HRiMPcz31gMe', 
         'admin');
+
+-- Departments Table
+CREATE TABLE departments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL
+);
+
+-- Designations Table
+CREATE TABLE designations (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100) NOT NULL
+);
+
+-- Update Users Table
+ALTER TABLE users 
+ADD COLUMN department_id INT NULL,
+ADD COLUMN designation_id INT NULL,
+ADD FOREIGN KEY (department_id) REFERENCES departments(id),
+ADD FOREIGN KEY (designation_id) REFERENCES designations(id);
