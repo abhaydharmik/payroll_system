@@ -12,10 +12,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $department_id = !empty($_POST['department_id']) ? $_POST['department_id'] : null;
 
+    // Insert into users table
     $stmt = $conn->prepare("INSERT INTO users (name, email, password, role, department_id) VALUES (?, ?, ?, 'employee', ?)");
     $stmt->bind_param("sssi", $name, $email, $password, $department_id);
 
     if ($stmt->execute()) {
+
+        // ✅ Log activity
+        $addedBy = $_SESSION['user']['name'];
+        $activity = "Added new employee: $name";
+
+        $activity_sql = "INSERT INTO activities (action, user_name, created_at) VALUES (?, ?, NOW())";
+        $activity_stmt = $conn->prepare($activity_sql);
+        $activity_stmt->bind_param("ss", $activity, $addedBy);
+        $activity_stmt->execute();
+
         header("Location: employees.php");
         exit;
     } else {
@@ -46,7 +57,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <?php endwhile; ?>
             </select>
 
-            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Add Employee</button>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                Add Employee
+            </button>
         </form>
 
         <?php if(!empty($error)): ?>

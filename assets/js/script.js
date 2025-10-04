@@ -1,24 +1,40 @@
 // Show confirmation before delete
 function confirmDelete() {
-    return confirm("Are you sure you want to delete this record?");
+  return confirm("Are you sure you want to delete this record?");
 }
 
 // Flash message fade out
 window.onload = function () {
-    let msg = document.querySelector(".flash-message");
-    if (msg) {
-        setTimeout(() => {
-            msg.style.display = "none";
-        }, 3000);
-    }
+  let msg = document.querySelector(".flash-message");
+  if (msg) {
+    setTimeout(() => {
+      msg.style.display = "none";
+    }, 3000);
+  }
 };
 
 // Toggle password visibility
 function togglePassword(id) {
-    let input = document.getElementById(id);
-    if (input.type === "password") {
-        input.type = "text";
-    } else {
-        input.type = "password";
-    }
+  let input = document.getElementById(id);
+  if (input.type === "password") {
+    input.type = "text";
+  } else {
+    input.type = "password";
+  }
 }
+
+const sidebar = document.getElementById("sidebar");
+const toggleBtn = document.getElementById("sidebarToggle");
+const overlay = document.getElementById("overlay");
+
+toggleBtn.addEventListener("click", () => {
+  sidebar.classList.toggle("-translate-x-full");
+  overlay.classList.toggle("hidden");
+});
+
+overlay.addEventListener("click", () => {
+  sidebar.classList.add("-translate-x-full");
+  overlay.classList.add("hidden");
+});
+
+console.log("Checking..!!")

@@ -68,3 +68,13 @@ ADD COLUMN department_id INT NULL,
 ADD COLUMN designation_id INT NULL,
 ADD FOREIGN KEY (department_id) REFERENCES departments(id),
 ADD FOREIGN KEY (designation_id) REFERENCES designations(id);
+
+-- Activities Table (for logs)
+CREATE TABLE activities (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    user_name VARCHAR(100) NOT NULL,
+    action VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
