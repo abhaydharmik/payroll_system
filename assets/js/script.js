@@ -24,39 +24,16 @@ function togglePassword(id) {
 }
 
 // Sidebar Toggle Logic 'sidebar.php'
-document.addEventListener("DOMContentLoaded", () => {
-  const sidebar = document.getElementById("sidebar");
-  const overlay = document.getElementById("overlay");
-  const toggleBtn = document.getElementById("sidebarToggle");
+const sidebar = document.getElementById("sidebar");
+const toggleBtn = document.getElementById("sidebarToggle");
+const overlay = document.getElementById("overlay");
 
-  // Check saved state
-  if (sessionStorage.getItem("sidebarOpen") === "true") {
-    sidebar.classList.remove("-translate-x-full");
-    overlay.classList.remove("hidden");
-  }
+toggleBtn.addEventListener("click", () => {
+  sidebar.classList.toggle("mobile-hidden");
+  overlay.classList.toggle("hidden");
+});
 
-  // Toggle sidebar
-  toggleBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("-translate-x-full");
-    overlay.classList.toggle("hidden");
-    sessionStorage.setItem(
-      "sidebarOpen",
-      !sidebar.classList.contains("-translate-x-full")
-    );
-  });
-
-  // Overlay click
-  overlay.addEventListener("click", () => {
-    sidebar.classList.add("-translate-x-full");
-    overlay.classList.add("hidden");
-    sessionStorage.setItem("sidebarOpen", false);
-  });
-
-  // Reset sidebar on desktop
-  window.addEventListener("resize", () => {
-    if (window.innerWidth >= 768) {
-      sidebar.classList.remove("-translate-x-full");
-      overlay.classList.add("hidden");
-    }
-  });
+overlay.addEventListener("click", () => {
+  sidebar.classList.add("mobile-hidden");
+  overlay.classList.add("hidden");
 });

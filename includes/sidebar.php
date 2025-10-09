@@ -3,35 +3,21 @@
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
-<!-- Mobile Header -->
-<header class="fixed top-0 left-0 right-0 bg-white shadow-md flex items-center justify-between px-4 py-3 md:hidden z-50">
-    <!-- Hamburger Button on Left -->
-    <button id="sidebarToggle" class="text-gray-800 text-2xl focus:outline-none">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-    </button>
-    <h1 class="text-lg font-bold text-gray-800 flex items-center ml-4">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM3 21h8v-6H3v6zM13 3v6h8V3h-8z"/>
-        </svg>
-        Admin Panel
-    </h1>
-</header>
-
 <!-- Sidebar -->
-<aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 z-40 shadow-lg">
-    <!-- Mobile Close Button -->
-    <div class="flex justify-end md:hidden p-4">
-        <button id="sidebarClose" class="text-gray-800 text-2xl hover:text-red-600 focus:outline-none">
-            <!-- X Icon -->
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+<aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white flex flex-col transform mobile-hidden md:translate-x-0 transition-transform duration-300 z-40 shadow-lg">
+
+    <!-- Logo / Title -->
+    <div class="p-2 md:p-4 border-b">
+        <h1 class="text-xl font-bold flex items-center text-gray-800">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM3 21h8v-6H3v6zM13 3v6h8V3h-8z"/>
             </svg>
-        </button>
+            Admin Panel
+        </h1>
     </div>
 
-    <nav class="flex-1 px-4 py-7 mt-4 md:mt-0 space-y-2 overflow-y-auto">
+    <!-- Navigation Menu -->
+    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
         <?php
         $menuItems = [
             'dashboard.php'       => ['title' => 'Dashboard', 'icon' => '<path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM3 21h8v-6H3v6zM13 3v6h8V3h-8z"/>' ],
@@ -53,45 +39,15 @@ $currentPage = basename($_SERVER['PHP_SELF']);
             echo '<a href="'.$file.'" class="block py-2 px-3 rounded-lg flex items-center '.$activeClass.'">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         '.$item['icon'].'
-                    </svg>'.$item['title'].'
+                    </svg>
+                    '.$item['title'].'
                   </a>';
         endforeach;
         ?>
     </nav>
 
     <!-- Footer -->
-    <div class="p-4 border-t mt-4 border-blue-700">
-        <p class="text-sm">&copy; <?= date("Y"); ?> <span class="font-semibold">Payroll System</span>. All rights reserved.</p>
+    <div class="p-4 border-t mt-4">
+        <p class="text-sm text-gray-500">&copy; <?= date("Y"); ?> <span class="font-semibold text-gray-800">Payroll System</span></p>
     </div>
 </aside>
-
-<!-- Overlay for Mobile -->
-<div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30 md:hidden"></div>
-
-<!-- Sidebar Toggle Script -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.getElementById('overlay');
-    const toggleBtn = document.getElementById('sidebarToggle');
-    const closeBtn = document.getElementById('sidebarClose');
-
-    // Open sidebar
-    toggleBtn.addEventListener('click', () => {
-        sidebar.classList.remove('-translate-x-full');
-        overlay.classList.remove('hidden');
-    });
-
-    // Close sidebar (X button)
-    closeBtn.addEventListener('click', () => {
-        sidebar.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
-    });
-
-    // Click overlay to close
-    overlay.addEventListener('click', () => {
-        sidebar.classList.add('-translate-x-full');
-        overlay.classList.add('hidden');
-    });
-});
-</script>
