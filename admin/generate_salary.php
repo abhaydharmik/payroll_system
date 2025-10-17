@@ -47,7 +47,7 @@ $employees = $conn->query("SELECT id, name FROM users WHERE role='employee'");
     }
   </style>
 </head>
-<body class="bg-gray-100 flex">
+<body class="bg-gray-100">
 
   <!-- Sidebar -->
   <?php include '../includes/sidebar.php'; ?>

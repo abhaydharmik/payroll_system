@@ -30,7 +30,7 @@ $result = $conn->query($sql);
     }
   </style>
 </head>
-<body class="bg-gray-100 flex">
+<body class="bg-gray-100">
 
   <!-- SIDEBAR -->
   <?php include_once '../includes/sidebar.php'; ?>
@@ -63,8 +63,8 @@ $result = $conn->query($sql);
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
       <div class="bg-white shadow-md rounded-lg p-4 md:p-6">
-        <div class="overflow-x-auto">
-          <table class="w-full table-auto border-collapse min-w-[750px]">
+        <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
+          <table class="min-w-full table-auto border-collapse">
             <thead class="bg-indigo-600 text-white">
               <tr>
                 <th class="px-4 py-3 text-left">ID</th>
@@ -102,6 +102,7 @@ $result = $conn->query($sql);
             </tbody>
           </table>
         </div>
+      </div>
 
         <!-- Back to Dashboard -->
         <div class="mt-6 text-center md:text-left">

@@ -7,47 +7,47 @@ $emp = $_SESSION['user'];
 
 // Handle Add Department
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add'])) {
-    $name = trim($_POST['name']);
-    if (!empty($name)) {
-        $stmt = $conn->prepare("INSERT INTO departments (name) VALUES (?)");
-        $stmt->bind_param("s", $name);
-        $stmt->execute();
-    }
-    header("Location: departments.php");
-    exit;
+  $name = trim($_POST['name']);
+  if (!empty($name)) {
+    $stmt = $conn->prepare("INSERT INTO departments (name) VALUES (?)");
+    $stmt->bind_param("s", $name);
+    $stmt->execute();
+  }
+  header("Location: departments.php");
+  exit;
 }
 
 // Handle Update Department
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
-    $id = intval($_POST['id']);
-    $name = trim($_POST['name']);
-    if (!empty($name)) {
-        $stmt = $conn->prepare("UPDATE departments SET name=? WHERE id=?");
-        $stmt->bind_param("si", $name, $id);
-        $stmt->execute();
-    }
-    header("Location: departments.php");
-    exit;
+  $id = intval($_POST['id']);
+  $name = trim($_POST['name']);
+  if (!empty($name)) {
+    $stmt = $conn->prepare("UPDATE departments SET name=? WHERE id=?");
+    $stmt->bind_param("si", $name, $id);
+    $stmt->execute();
+  }
+  header("Location: departments.php");
+  exit;
 }
 
 // Handle Delete Department (with employee check)
 if (isset($_GET['delete'])) {
-    $id = intval($_GET['delete']);
-    $stmt = $conn->prepare("SELECT COUNT(*) as cnt FROM users WHERE department_id=?");
+  $id = intval($_GET['delete']);
+  $stmt = $conn->prepare("SELECT COUNT(*) as cnt FROM users WHERE department_id=?");
+  $stmt->bind_param("i", $id);
+  $stmt->execute();
+  $count = $stmt->get_result()->fetch_assoc()['cnt'];
+  if ($count > 0) {
+    echo "<script>alert('❌ Cannot delete department: employees are still assigned.'); 
+              window.location='departments.php';</script>";
+    exit;
+  } else {
+    $stmt = $conn->prepare("DELETE FROM departments WHERE id=?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
-    $count = $stmt->get_result()->fetch_assoc()['cnt'];
-    if ($count > 0) {
-        echo "<script>alert('❌ Cannot delete department: employees are still assigned.'); 
-              window.location='departments.php';</script>";
-        exit;
-    } else {
-        $stmt = $conn->prepare("DELETE FROM departments WHERE id=?");
-        $stmt->bind_param("i", $id);
-        $stmt->execute();
-        header("Location: departments.php");
-        exit;
-    }
+    header("Location: departments.php");
+    exit;
+  }
 }
 
 // Fetch Departments
@@ -56,15 +56,16 @@ $result = $conn->query("SELECT * FROM departments ORDER BY id DESC");
 // If editing, fetch department data
 $editDept = null;
 if (isset($_GET['edit'])) {
-    $id = intval($_GET['edit']);
-    $stmt = $conn->prepare("SELECT * FROM departments WHERE id=?");
-    $stmt->bind_param("i", $id);
-    $stmt->execute();
-    $editDept = $stmt->get_result()->fetch_assoc();
+  $id = intval($_GET['edit']);
+  $stmt = $conn->prepare("SELECT * FROM departments WHERE id=?");
+  $stmt->bind_param("i", $id);
+  $stmt->execute();
+  $editDept = $stmt->get_result()->fetch_assoc();
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -75,6 +76,7 @@ if (isset($_GET['edit'])) {
     #sidebar {
       transition: transform 0.3s ease-in-out;
     }
+
     @media (max-width: 767px) {
       #sidebar.mobile-hidden {
         transform: translateX(-100%);
@@ -82,9 +84,9 @@ if (isset($_GET['edit'])) {
     }
   </style>
 </head>
-<body class="bg-gray-100 flex">
 
-  <!-- SIDEBAR -->
+<body class="bg-gray-100">
+
   <?php include_once '../includes/sidebar.php'; ?>
 
   <!-- Overlay for Mobile -->
@@ -115,7 +117,7 @@ if (isset($_GET['edit'])) {
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
       <div class="bg-white shadow-md rounded-lg p-4 md:p-6">
-        
+
         <!-- Add/Edit Department Form -->
         <form method="POST" class="flex flex-col md:flex-row mb-6 space-y-2 md:space-y-0">
           <?php if ($editDept): ?>
@@ -130,39 +132,41 @@ if (isset($_GET['edit'])) {
         </form>
 
         <!-- Departments Table -->
-        <div class="overflow-x-auto">
-          <table class="w-full border-collapse table-auto min-w-[400px]">
-            <thead>
-              <tr class="bg-indigo-600 text-white text-left">
-                <th class="p-2 border">ID</th>
-                <th class="p-2 border">Department</th>
-                <th class="p-2 border">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php while ($row = $result->fetch_assoc()): ?>
-                <tr class="hover:bg-gray-50">
-                  <td class="p-2 border"><?= $row['id'] ?></td>
-                  <td class="p-2 border"><?= htmlspecialchars($row['name']) ?></td>
-                  <td class="p-2 border space-x-2 flex flex-wrap">
-                    <a href="departments.php?edit=<?= $row['id'] ?>" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Edit</a>
-                    <a href="departments.php?delete=<?= $row['id'] ?>" onclick="return confirm('Delete this department?')" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete</a>
-                  </td>
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="overflow-x-auto">
+            <table class="w-full border-collapse table-auto min-w-max">
+              <thead>
+                <tr class="bg-indigo-600 text-white text-left">
+                  <th class="p-2 border">ID</th>
+                  <th class="p-2 border">Department</th>
+                  <th class="p-2 border">Actions</th>
                 </tr>
-              <?php endwhile; ?>
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                <?php while ($row = $result->fetch_assoc()): ?>
+                  <tr class="hover:bg-gray-50">
+                    <td class="p-2 border"><?= $row['id'] ?></td>
+                    <td class="p-2 border"><?= htmlspecialchars($row['name']) ?></td>
+                    <td class="p-2 border space-x-2 flex flex-wrap">
+                      <a href="departments.php?edit=<?= $row['id'] ?>" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">Edit</a>
+                      <a href="departments.php?delete=<?= $row['id'] ?>" onclick="return confirm('Delete this department?')" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete</a>
+                    </td>
+                  </tr>
+                <?php endwhile; ?>
+              </tbody>
+            </table>
+          </div>
 
-        <div class="mt-6 text-center md:text-left">
-          <a href="dashboard.php" class="text-blue-600 hover:underline flex items-center justify-center md:justify-start">
-            <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
-          </a>
+          <div class="mt-6 text-center md:text-left">
+            <a href="dashboard.php" class="text-blue-600 hover:underline flex items-center justify-center md:justify-start">
+              <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
+            </a>
+          </div>
         </div>
-      </div>
     </main>
   </div>
 
   <script src="../assets/js/script.js"></script>
 </body>
+
 </html>

@@ -12,16 +12,17 @@ $sql = "SELECT u.id, u.name, u.email, d.name AS department
         LEFT JOIN departments d ON u.department_id = d.id
         WHERE u.role='employee'";
 if (!empty($selectedDept)) {
-    $sql .= " AND u.department_id = " . intval($selectedDept);
+  $sql .= " AND u.department_id = " . intval($selectedDept);
 }
 $sql .= " ORDER BY u.id ASC";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Employees | Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
@@ -34,7 +35,8 @@ $result = $conn->query($sql);
     }
   </style>
 </head>
-<body class="bg-gray-100 flex">
+
+<body class="bg-gray-100">
 
   <!-- SIDEBAR -->
   <?php include_once '../includes/sidebar.php'; ?>
@@ -67,7 +69,7 @@ $result = $conn->query($sql);
     <!-- PAGE CONTENT -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
       <div class="bg-white shadow-md rounded-lg p-4 sm:p-6">
-        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Employee Directory</h2>
+        <!-- <h2 class="text-2xl font-semibold text-gray-800 mb-4">Employee Directory</h2> -->
 
         <!-- Top Actions -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 space-y-3 sm:space-y-0">
@@ -93,7 +95,7 @@ $result = $conn->query($sql);
 
         <!-- Employee Table -->
         <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
-          <table class="w-full border-collapse border border-gray-300 min-w-[650px]">
+          <table class="min-w-max w-full border-collapse border border-gray-300 min-w-[650px]">
             <thead>
               <tr class="bg-gray-200 text-xs sm:text-sm md:text-base uppercase tracking-wider">
                 <th class="border px-3 py-2 text-left">ID</th>
@@ -142,21 +144,6 @@ $result = $conn->query($sql);
   </div>
 
   <script src="../assets/js/script.js"></script>
-  <!-- Script -->
-  <!-- <script>
-    const sidebar = document.getElementById("sidebar");
-    const toggleBtn = document.getElementById("sidebarToggle");
-    const overlay = document.getElementById("overlay");
-
-    toggleBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("mobile-hidden");
-      overlay.classList.toggle("hidden");
-    });
-
-    overlay.addEventListener("click", () => {
-      sidebar.classList.add("mobile-hidden");
-      overlay.classList.add("hidden");
-    });
-  </script> -->
 </body>
+
 </html>

@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <html>
 <head>
     <title>Add Employee</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
     <div class="max-w-lg mx-auto mt-10 bg-white shadow-lg rounded-lg p-6">

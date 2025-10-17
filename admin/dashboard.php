@@ -25,16 +25,19 @@ $departments = $conn->query("
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin Dashboard | Payroll System</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <  <script src="https://cdn.tailwindcss.com"></script>
+
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
   <style>
     #sidebar {
       transition: transform 0.3s ease-in-out;
     }
+
     /* Sidebar hidden only on mobile by default */
     @media (max-width: 767px) {
       #sidebar.mobile-hidden {
@@ -43,10 +46,11 @@ $departments = $conn->query("
     }
   </style>
 </head>
-<body class="bg-gray-100 flex">
+
+<body class="bg-gray-100">
 
   <!-- SIDEBAR -->
-    <?php include_once '../includes/sidebar.php'; ?>
+  <?php include_once '../includes/sidebar.php'; ?>
 
   <!-- Overlay for Mobile -->
   <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30 md:hidden"></div>
@@ -169,4 +173,5 @@ $departments = $conn->query("
     });
   </script> -->
 </body>
+
 </html>
