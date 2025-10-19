@@ -4,7 +4,7 @@ require '../includes/auth.php';
 checkRole('employee');
 
 $emp = $_SESSION['user'];
-$userId = $_SESSION['user']['id']; // fixed here
+$userId = $_SESSION['user']['id'];
 
 // Attendance history
 $attendance = $conn->query("
@@ -15,6 +15,11 @@ $attendance = $conn->query("
     LIMIT 30
 ");
 
+// Calculate attendance stats
+$totalWorkingDays = $conn->query("SELECT COUNT(*) as total FROM attendance WHERE user_id = $userId")->fetch_assoc()['total'] ?? 0;
+$daysPresent = $conn->query("SELECT COUNT(*) as total FROM attendance WHERE user_id = $userId AND status = 'Present'")->fetch_assoc()['total'] ?? 0;
+$totalAbsent = $conn->query("SELECT COUNT(*) as total FROM attendance WHERE user_id = $userId AND status = 'Absent'")->fetch_assoc()['total'] ?? 0;
+
 // Leave requests
 $leaves = $conn->query("
     SELECT reason, status, applied_at 
@@ -23,6 +28,11 @@ $leaves = $conn->query("
     ORDER BY applied_at DESC
 ");
 
+// Leave stats
+$annualLeave = $conn->query("SELECT COUNT(*) as total FROM leaves WHERE user_id = $userId AND leave_type = 'Vacation' AND status = 'Approved'")->fetch_assoc()['total'] ?? 0;
+$sickLeave = $conn->query("SELECT COUNT(*) as total FROM leaves WHERE user_id = $userId AND leave_type = 'Sick Leave' AND status = 'Approved'")->fetch_assoc()['total'] ?? 0;
+$personalLeave = $conn->query("SELECT COUNT(*) as total FROM leaves WHERE user_id = $userId AND leave_type = 'Casual Leave' AND status = 'Approved'")->fetch_assoc()['total'] ?? 0;
+
 // Salary history
 $salaries = $conn->query("
     SELECT month, basic, overtime_hours, overtime_rate, deductions, total, generated_at 
@@ -30,131 +40,325 @@ $salaries = $conn->query("
     WHERE user_id = $userId 
     ORDER BY generated_at DESC
 ");
+
+// Latest salary
+$latestSalary = $conn->query("SELECT * FROM salaries WHERE user_id = $userId ORDER BY generated_at DESC LIMIT 1")->fetch_assoc();
+$grossSalary = $latestSalary['basic'] ?? 0;
+$deductions = $latestSalary['deductions'] ?? 0;
+$netSalary = $latestSalary['total'] ?? 0;
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My Reports</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        @media (max-width: 767px) {
+            #sidebar.mobile-hidden {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
 </head>
 
-<!-- Sidebar -->
-<aside class="w-64 bg-blue-800 text-white flex flex-col fixed h-screen">
-    <div class="p-6 border-b border-blue-700">
-        <h1 class="text-xl font-bold flex items-center">
-            <i class="fa-solid fa-chart-line mr-2"></i> Employee Panel
-        </h1>
-    </div>
-    <nav class="flex-1 px-4 py-6 space-y-2">
-        <a href="dashboard.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-            <i class="fa-solid fa-gauge mr-2"></i> Dashboard
-        </a>
-        <a href="profile.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-            <i class="fa-solid fa-users mr-2"></i> Profile
-        </a>
-        <a href="attendance.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-            <i class="fa-solid fa-calendar-check mr-2"></i> My Attendance
-        </a>
-        <a href="leaves.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-            <i class="fa-solid fa-file-signature mr-2"></i> My Leaves
-        </a>
-        <a href="salary.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-            <i class="fa-solid fa-sack-dollar mr-2"></i> Salary Slips
-        </a>
-        <a href="reports.php" class="block py-2 px-3 rounded-lg bg-blue-700">
-            <i class="fa-solid fa-file-invoice-dollar mr-2"></i> My Reports
-        </a>
-    </nav>
-    <div class="p-4 border-t border-blue-700">
-        <p class="text-sm">&copy; <?php echo date("Y"); ?> <span class="font-semibold">Payroll System</span>. All rights reserved.</p>
-    </div>
-</aside>
+<body class="bg-gray-50">
+    <!-- Sidebar -->
+    <?php include '../includes/sidebaremp.php'; ?>
 
-<!-- Main Content -->
-<main class="flex-1 ml-64 p-8">
-    <header class="bg-white shadow px-6 py-4 flex justify-between items-center rounded">
-            <h2 class="text-lg font-semibold text-gray-700">My Reports</h2>
-            <div class="flex items-center space-x-4">
-                <span class="text-gray-700"><i class="fas fa-user-circle text-blue-600 mr-1"></i><?php echo htmlspecialchars($emp['name']); ?></span>
-                <a href="../logout.php" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Logout</a>
+    <!-- Overlay for Mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30 md:hidden"></div>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col min-h-screen md:ml-64">
+        <!-- Navbar -->
+        <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
+            <div class="flex items-center space-x-3">
+                <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <h1 class="text-lg font-semibold text-gray-700">Reports</h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="text-gray-700 flex items-center">
+                    <i class="fas fa-user-circle text-blue-600 mr-1"></i>
+                    <span class="hidden sm:inline"><?= htmlspecialchars($emp['name']) ?></span>
+                </span>
+                <a href="../logout.php" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-sign-out-alt text-lg"></i>
+                </a>
             </div>
         </header>
 
-    <!-- Attendance -->
-    <div class="bg-white p-4 rounded shadow-lg mb-6 mt-4">
-        <h2 class="text-lg font-semibold mb-3">Recent Attendance</h2>
-        <table class="w-full border">
-            <thead class="bg-gray-200">
-                <tr>
-                    <th class="p-2 border">Date</th>
-                    <th class="p-2 border">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($a = $attendance->fetch_assoc()): ?>
-                    <tr>
-                        <td class="p-2 border"><?= htmlspecialchars($a['date']) ?></td>
-                        <td class="p-2 border"><?= htmlspecialchars($a['status']) ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
+        <!-- Page Content -->
+        <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
+            <!-- Page Header -->
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">My Reports</h2>
+                    <p class="text-sm text-gray-500">View and download your performance reports</p>
+                </div>
+                <select class="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                    <option>Last 30 Days</option>
+                    <option>Last 60 Days</option>
+                    <option>Last 90 Days</option>
+                    <option>This Year</option>
+                </select>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                <div class="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Total Working Days</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-1"><?= $totalWorkingDays ?></p>
+                        </div>
+                        <div class="bg-blue-100 p-3 rounded-lg">
+                            <i class="fa-solid fa-calendar-days text-blue-600 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Days Present</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-1"><?= $daysPresent ?></p>
+                        </div>
+                        <div class="bg-green-100 p-3 rounded-lg">
+                            <i class="fa-solid fa-check-circle text-green-600 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-5 border-l-4 border-yellow-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Total Leaves</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-1"><?= $annualLeave + $sickLeave + $personalLeave ?></p>
+                        </div>
+                        <div class="bg-yellow-100 p-3 rounded-lg">
+                            <i class="fa-solid fa-umbrella-beach text-yellow-600 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow p-5 border-l-4 border-red-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-gray-500">Days Absent</p>
+                            <p class="text-3xl font-bold text-gray-800 mt-1"><?= $totalAbsent ?></p>
+                        </div>
+                        <div class="bg-red-100 p-3 rounded-lg">
+                            <i class="fa-solid fa-xmark-circle text-red-600 text-2xl"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Cards Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <!-- Attendance Report -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-blue-100 p-3 rounded-lg mr-4">
+                            <i class="fa-solid fa-calendar-check text-blue-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800">Attendance Report</h3>
+                            <p class="text-sm text-gray-500">Monthly attendance summary</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Present Days:</span>
+                            <span class="font-semibold text-green-600"><?= $daysPresent ?></span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Late Arrivals:</span>
+                            <span class="font-semibold text-orange-600">3</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Early Departures:</span>
+                            <span class="font-semibold text-yellow-600">1</span>
+                        </div>
+                    </div>
+                    <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
+                        <i class="fa-solid fa-download mr-2"></i>Download PDF
+                    </button>
+                </div>
+
+                <!-- Leave Report -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-green-100 p-3 rounded-lg mr-4">
+                            <i class="fa-solid fa-file-lines text-green-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800">Leave Report</h3>
+                            <p class="text-sm text-gray-500">Leave balance and history</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Annual Leave:</span>
+                            <span class="font-semibold text-blue-600"><?= $annualLeave ?>/20 used</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Sick Leave:</span>
+                            <span class="font-semibold text-blue-600"><?= $sickLeave ?>/10 used</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Personal Leave:</span>
+                            <span class="font-semibold text-blue-600"><?= $personalLeave ?>/5 used</span>
+                        </div>
+                    </div>
+                    <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
+                        <i class="fa-solid fa-download mr-2"></i>Download PDF
+                    </button>
+                </div>
+
+                <!-- Salary Report -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-purple-100 p-3 rounded-lg mr-4">
+                            <i class="fa-solid fa-money-bill-wave text-purple-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800">Salary Report</h3>
+                            <p class="text-sm text-gray-500">Monthly salary breakdown</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Gross Salary:</span>
+                            <span class="font-semibold text-gray-800">₹<?= number_format($grossSalary, 2) ?></span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Deductions:</span>
+                            <span class="font-semibold text-red-600">₹<?= number_format($deductions, 2) ?></span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Net Salary:</span>
+                            <span class="font-semibold text-green-600">₹<?= number_format($netSalary, 2) ?></span>
+                        </div>
+                    </div>
+                    <button class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
+                        <i class="fa-solid fa-download mr-2"></i>Download PDF
+                    </button>
+                </div>
+
+                <!-- Performance Report -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex items-start mb-4">
+                        <div class="bg-orange-100 p-3 rounded-lg mr-4">
+                            <i class="fa-solid fa-chart-line text-orange-600 text-xl"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-800">Performance Report</h3>
+                            <p class="text-sm text-gray-500">Quarterly performance summary</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3 mb-4">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Overall Rating:</span>
+                            <span class="font-semibold text-orange-600">4.2/5.0</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Goals Achieved:</span>
+                            <span class="font-semibold text-gray-800">6/10</span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Projects Completed:</span>
+                            <span class="font-semibold text-gray-800">12</span>
+                        </div>
+                    </div>
+                    <button class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
+                        <i class="fa-solid fa-download mr-2"></i>Download PDF
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Downloads -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-2">Recent Downloads</h3>
+                <p class="text-sm text-gray-500 mb-4">Your recently downloaded reports</p>
+
+                <div class="space-y-3">
+                    <!-- Download Item -->
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-blue-100 p-2 rounded">
+                                <i class="fa-solid fa-file-pdf text-blue-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800 text-sm">Attendance Report - December 2024</p>
+                                <p class="text-xs text-gray-500">Attendance • 243 KB • 2024-12-15</p>
+                            </div>
+                        </div>
+                        <button class="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                            Download Again
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-purple-100 p-2 rounded">
+                                <i class="fa-solid fa-file-pdf text-purple-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800 text-sm">Salary Slip - November 2024</p>
+                                <p class="text-xs text-gray-500">Salary • 188 KB • 2024-11-30</p>
+                            </div>
+                        </div>
+                        <button class="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                            Download Again
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-green-100 p-2 rounded">
+                                <i class="fa-solid fa-file-pdf text-green-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800 text-sm">Leave Summary - Q4 2024</p>
+                                <p class="text-xs text-gray-500">Leave • 156 KB • 2024-11-15</p>
+                            </div>
+                        </div>
+                        <button class="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                            Download Again
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                        <div class="flex items-center space-x-3">
+                            <div class="bg-orange-100 p-2 rounded">
+                                <i class="fa-solid fa-file-pdf text-orange-600"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-gray-800 text-sm">Performance Review - Q3 2024</p>
+                                <p class="text-xs text-gray-500">Performance • 298 KB • 2024-10-01</p>
+                            </div>
+                        </div>
+                        <button class="text-blue-600 hover:text-blue-700 font-medium text-sm">
+                            Download Again
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
-    <!-- Leaves -->
-    <div class="bg-white p-4 rounded shadow mb-6">
-        <h2 class="text-lg font-semibold mb-3">Leave Requests</h2>
-        <table class="w-full border">
-            <thead class="bg-gray-200">
-                <tr>
-                    <th class="p-2 border">Reason</th>
-                    <th class="p-2 border">Status</th>
-                    <th class="p-2 border">Applied At</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($l = $leaves->fetch_assoc()): ?>
-                    <tr>
-                        <td class="p-2 border"><?= htmlspecialchars($l['reason']) ?></td>
-                        <td class="p-2 border"><?= htmlspecialchars($l['status']) ?></td>
-                        <td class="p-2 border"><?= htmlspecialchars($l['applied_at']) ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Salaries -->
-    <div class="bg-white p-4 rounded shadow">
-        <h2 class="text-lg font-semibold mb-3">Salary History</h2>
-        <table class="w-full border">
-            <thead class="bg-gray-200">
-                <tr>
-                    <th class="p-2 border">Month</th>
-                    <th class="p-2 border">Basic</th>
-                    <th class="p-2 border">Overtime</th>
-                    <th class="p-2 border">Deductions</th>
-                    <th class="p-2 border">Total</th>
-                    <th class="p-2 border">Generated At</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($s = $salaries->fetch_assoc()): ?>
-                    <tr>
-                        <td class="p-2 border"><?= htmlspecialchars($s['month']) ?></td>
-                        <td class="p-2 border">$<?= $s['basic'] ?></td>
-                        <td class="p-2 border"><?= $s['overtime_hours'] ?> hrs x $<?= $s['overtime_rate'] ?></td>
-                        <td class="p-2 border">$<?= $s['deductions'] ?></td>
-                        <td class="p-2 border font-bold">₹<?= $s['total'] ?></td>
-                        <td class="p-2 border"><?= $s['generated_at'] ?></td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    </div>
-    </body>
+    <script src="../assets/js/script.js"></script>
+</body>
 
 </html>

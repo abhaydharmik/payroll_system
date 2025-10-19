@@ -7,7 +7,6 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'employee') {
     exit;
 }
 
-
 $emp = $_SESSION['user'];
 $emp_id = $_SESSION['user']['id'];
 $stmt = $conn->prepare("SELECT * FROM salaries WHERE user_id=? ORDER BY generated_at DESC");
@@ -20,96 +19,166 @@ $salaries = $stmt->get_result();
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>My Salary Slips</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
 
+        @media (max-width: 767px) {
+            #sidebar.mobile-hidden {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
 </head>
 
-<body class="bg-gray-100 flex">
+<body class="bg-gray-100">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-blue-800 text-white flex flex-col fixed h-screen">
-        <div class="p-6 border-b border-blue-700">
-            <h1 class="text-xl font-bold flex items-center">
-                <i class="fa-solid fa-chart-line mr-2"></i> Employee Panel
-            </h1>
-        </div>
-        <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="dashboard.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700 ">
-                <i class="fa-solid fa-gauge mr-2"></i> Dashboard
-            </a>
-            <a href="profile.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-                <i class="fa-solid fa-users mr-2"></i> Profile
-            </a>
-            <a href="attendance.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-                <i class="fa-solid fa-calendar-check mr-2"></i> My Attendance
-            </a>
-            <a href="leaves.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-                <i class="fa-solid fa-file-signature mr-2"></i> My Leaves
-            </a>
-            <a href="salary.php" class="block py-2 px-3 rounded-lg bg-blue-700">
-                <i class="fa-solid fa-sack-dollar mr-2"></i> Salary Slips
-            </a>
-            <a href="reports.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-                <i class="fa-solid fa-file-invoice-dollar mr-2"></i> My Reports
-            </a>
-        </nav>
-        <div class="p-4 border-t border-blue-700">
-            <p class="text-sm">&copy; <?php echo date("Y"); ?> <span class="font-semibold">Payroll System</span>. All rights reserved.</p>
-        </div>
-    </aside>
+    <?php include '../includes/sidebaremp.php'; ?>
+
+    <!-- Overlay for Mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30 md:hidden"></div>
 
     <!-- Main Content -->
-    <main class="flex-1 ml-64 p-8">
-        <!-- Content -->
-        <header class="bg-white shadow px-6 py-4 flex justify-between items-center rounded">
-            <h2 class="text-lg font-semibold text-gray-700">Salary Slips</h2>
-            <div class="flex items-center space-x-4">
-                <span class="text-gray-700"><i class="fas fa-user-circle text-blue-600 mr-1"></i><?php echo htmlspecialchars($emp['name']); ?></span>
-                <a href="../logout.php" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Logout</a>
+    <div class="flex-1 flex flex-col min-h-screen md:ml-64">
+        <!-- Navbar -->
+        <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
+            <div class="flex items-center space-x-3">
+                <!-- Mobile menu button -->
+                <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <h1 class="text-lg font-semibold text-gray-700">Salary</h1>
+            </div>
+            <div class="flex items-center space-x-3">
+                <span class="text-gray-700 flex items-center">
+                    <i class="fas fa-user-circle text-blue-600 mr-1"></i>
+                    <span class="hidden sm:inline"><?= htmlspecialchars($emp['name']) ?></span>
+                </span>
+                <a href="../logout.php" class="text-red-600 hover:text-red-800">
+                    <i class="fas fa-sign-out-alt text-lg"></i>
+                </a>
             </div>
         </header>
-        <div class="flex-1 p-6 flex flex-col items-center">
-            <div class="w-full max-w-5xl bg-white rounded-xl shadow-md p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Salary Slips</h2>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full border border-gray-200 rounded-lg">
-                        <thead class="bg-gray-100 text-gray-700">
+        <!-- Page Content -->
+        <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
+            <!-- Salary Section -->
+            <div class="bg-white rounded-lg shadow p-6">
+                <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-xl md:text-2xl font-bold text-gray-800">My Salary Slips</h2>
+                        <p class="text-sm text-gray-500">Download and view your salary slips</p>
+                    </div>
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center text-sm shadow transition-colors duration-200">
+                        <i class="fas fa-file-pdf mr-2"></i> Export PDF
+                    </button>
+                </div>
+
+                <!-- Desktop Table View -->
+                <div class="hidden lg:block overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50 border-b">
                             <tr>
-                                <th class="px-4 py-2 text-left">Month</th>
-                                <th class="px-4 py-2 text-left">Basic</th>
-                                <th class="px-4 py-2 text-left">Overtime Hours</th>
-                                <th class="px-4 py-2 text-left">Overtime Rate</th>
-                                <th class="px-4 py-2 text-left">Deductions</th>
-                                <th class="px-4 py-2 text-left">Total</th>
-                                <th class="px-4 py-2 text-left">Generated At</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Month</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Basic</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Overtime Hours</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Overtime Rate</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Deductions</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Total</th>
+                                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Generated At</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y">
                             <?php if ($salaries->num_rows > 0) { ?>
                                 <?php while ($row = $salaries->fetch_assoc()) { ?>
-                                    <tr class="border-t hover:bg-gray-50 transition">
-                                        <td class="px-4 py-2"><?php echo htmlspecialchars($row['month']); ?></td>
-                                        <td class="px-4 py-2">₹<?php echo number_format($row['basic'], 2); ?></td>
-                                        <td class="px-4 py-2"><?php echo $row['overtime_hours']; ?></td>
-                                        <td class="px-4 py-2">₹<?php echo number_format($row['overtime_rate'], 2); ?></td>
-                                        <td class="px-4 py-2 text-red-600">₹<?php echo number_format($row['deductions'], 2); ?></td>
-                                        <td class="px-4 py-2 text-green-600 font-semibold">₹<?php echo number_format($row['total'], 2); ?></td>
-                                        <td class="px-4 py-2"><?php echo $row['generated_at']; ?></td>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-4 py-3 font-medium text-gray-700"><?= htmlspecialchars($row['month']); ?></td>
+                                        <td class="px-4 py-3 text-gray-700">₹<?= number_format($row['basic'], 2); ?></td>
+                                        <td class="px-4 py-3 text-gray-700"><?= $row['overtime_hours']; ?></td>
+                                        <td class="px-4 py-3 text-gray-700">₹<?= number_format($row['overtime_rate'], 2); ?></td>
+                                        <td class="px-4 py-3 text-red-600">₹<?= number_format($row['deductions'], 2); ?></td>
+                                        <td class="px-4 py-3 text-green-600 font-semibold">₹<?= number_format($row['total'], 2); ?></td>
+                                        <td class="px-4 py-3 text-gray-500 text-sm"><?= date('d M Y', strtotime($row['generated_at'])); ?></td>
                                     </tr>
                                 <?php } ?>
                             <?php } else { ?>
                                 <tr>
-                                    <td colspan="7" class="text-center py-4 text-gray-500">No salary records found.</td>
+                                    <td colspan="7" class="text-center py-8 text-gray-500">No salary records found.</td>
                                 </tr>
                             <?php } ?>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Mobile/Tablet Card View -->
+                <div class="lg:hidden space-y-4">
+                    <?php
+                    $salaries->data_seek(0);
+                    if ($salaries->num_rows > 0) {
+                        while ($row = $salaries->fetch_assoc()) {
+                    ?>
+                            <div class="border border-gray-200 rounded-lg p-4 bg-white hover:shadow-md transition-shadow">
+                                <div class="flex justify-between items-start mb-3">
+                                    <div>
+                                        <h3 class="font-bold text-gray-800 text-base"><?= htmlspecialchars($row['month']); ?></h3>
+                                        <p class="text-xs text-gray-500 mt-1">
+                                            <i class="fa-regular fa-clock mr-1"></i>
+                                            <?= date('d M Y', strtotime($row['generated_at'])); ?>
+                                        </p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xs text-gray-500 mb-1">Total Salary</p>
+                                        <p class="text-lg font-bold text-green-600">₹<?= number_format($row['total'], 2); ?></p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between py-2 border-t border-gray-100">
+                                        <span class="text-gray-600">Basic Salary:</span>
+                                        <span class="font-medium text-gray-800">₹<?= number_format($row['basic'], 2); ?></span>
+                                    </div>
+                                    <div class="flex justify-between py-2 border-t border-gray-100">
+                                        <span class="text-gray-600">Overtime Hours:</span>
+                                        <span class="font-medium text-gray-800"><?= $row['overtime_hours']; ?> hrs</span>
+                                    </div>
+                                    <div class="flex justify-between py-2 border-t border-gray-100">
+                                        <span class="text-gray-600">Overtime Rate:</span>
+                                        <span class="font-medium text-gray-800">₹<?= number_format($row['overtime_rate'], 2); ?></span>
+                                    </div>
+                                    <div class="flex justify-between py-2 border-t border-gray-100">
+                                        <span class="text-gray-600">Deductions:</span>
+                                        <span class="font-medium text-red-600">-₹<?= number_format($row['deductions'], 2); ?></span>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 pt-3 border-t border-gray-200">
+                                    <button class="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 py-2 rounded-lg text-sm font-medium transition-colors duration-200">
+                                        <i class="fa-solid fa-download mr-2"></i>Download Slip
+                                    </button>
+                                </div>
+                            </div>
+                        <?php
+                        }
+                    } else {
+                        ?>
+                        <div class="text-center py-12">
+                            <i class="fa-solid fa-receipt text-5xl text-gray-300 mb-4"></i>
+                            <p class="text-gray-500">No salary records found.</p>
+                        </div>
+                    <?php } ?>
+                </div>
             </div>
-        </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/script.js"></script>
+
 </body>
 
 </html>

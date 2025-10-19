@@ -5,21 +5,26 @@ checkRole('admin');
 
 $emp = $_SESSION['user'] ?? ['name' => 'Admin'];
 
-// Handle Approve/Reject actions
-if (isset($_GET['id']) && isset($_GET['action'])) {
-  $status = ($_GET['action'] === 'approve') ? 'Approved' : 'Rejected';
-  $stmt = $conn->prepare("UPDATE leaves SET status=? WHERE id=?");
-  $stmt->bind_param("si", $status, $_GET['id']);
-  $stmt->execute();
+// Handle Approve/Reject actions securely via POST
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'])) {
+  $id = intval($_POST['id']);
+  $action = $_POST['action'];
+  $status = ($action === 'approve') ? 'Approved' : (($action === 'reject') ? 'Rejected' : null);
+
+  if ($status) {
+    $stmt = $conn->prepare("UPDATE leaves SET status=? WHERE id=?");
+    $stmt->bind_param("si", $status, $id);
+    $stmt->execute();
+  }
   header("Location: leaves.php");
   exit;
 }
 
 // Fetch leave requests
-$sql = "SELECT l.id, u.name, l.reason, l.status, l.applied_at 
+$sql = "SELECT l.id, u.name, l.leave_type, l.reason, l.start_date, l.end_date, l.status, l.applied_at 
         FROM leaves l 
         JOIN users u ON l.user_id=u.id 
-        ORDER BY l.applied_at ASC";
+        ORDER BY l.applied_at DESC";
 $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
@@ -56,7 +61,6 @@ $result = $conn->query($sql);
     <!-- Top Navbar -->
     <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
       <div class="flex items-center space-x-3">
-        <!-- Mobile Sidebar Toggle -->
         <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
           <i class="fa-solid fa-bars text-xl"></i>
         </button>
@@ -74,29 +78,33 @@ $result = $conn->query($sql);
     </header>
 
     <!-- Page Content -->
-    <main class="flex-1 pt-20 px-4 md:px-8 pb-8"">
-      <!-- Leave Table -->
+    <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
       <div class="bg-white shadow-md rounded-lg p-4 md:p-6">
         <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
-
-          <table class="min-w-full border-collapse table-auto">
-            <thead class="bg-blue-600 text-white text-sm">
+          <table class="min-w-full border-collapse table-auto text-sm">
+            <thead class="bg-blue-600 text-white text-sm uppercase">
               <tr>
                 <th class="px-3 py-2 text-left">No</th>
                 <th class="px-3 py-2 text-left">Employee</th>
-                <th class="px-3 py-2 text-left hidden sm:table-cell w-5/4">Reason</th>
-                <th class="px-3 py-2 text-left">Applied At</th>
+                <th class="px-3 py-2 text-left hidden sm:table-cell">Type</th>
+                <th class="px-3 py-2 text-left hidden sm:table-cell">Reason</th>
+                <th class="px-3 py-2 text-left">Duration</th>
+                <th class="px-3 py-2 text-left">Applied</th>
                 <th class="px-3 py-2 text-left">Status</th>
                 <th class="px-3 py-2 text-left">Action</th>
               </tr>
             </thead>
-            <tbody class="text-sm">
+            <tbody class="text-gray-700">
               <?php if ($result && $result->num_rows > 0): ?>
                 <?php while ($row = $result->fetch_assoc()): ?>
                   <tr class="border-b hover:bg-gray-50">
                     <td class="px-3 py-2 font-medium"><?= $row['id'] ?></td>
                     <td class="px-3 py-2"><?= htmlspecialchars($row['name']) ?></td>
-                    <td class="px-3 py-2 hidden sm:table-cell  max-w-xs"><?= htmlspecialchars($row['reason']) ?></td>
+                    <td class="px-3 py-2 hidden sm:table-cell"><?= htmlspecialchars($row['leave_type']) ?></td>
+                    <td class="px-3 py-2 hidden sm:table-cell max-w-xs"><?= htmlspecialchars($row['reason']) ?></td>
+                    <td class="px-3 py-2 text-xs md:text-sm whitespace-nowrap">
+                      <?= htmlspecialchars($row['start_date']) ?> to <?= htmlspecialchars($row['end_date']) ?>
+                    </td>
                     <td class="px-3 py-2 text-xs md:text-sm whitespace-nowrap"><?= $row['applied_at'] ?></td>
                     <td class="px-3 py-2 whitespace-nowrap">
                       <?php if ($row['status'] === 'Pending'): ?>
@@ -109,14 +117,17 @@ $result = $conn->query($sql);
                     </td>
                     <td class="px-3 py-2 whitespace-nowrap flex flex-col sm:flex-row gap-1 sm:gap-2">
                       <?php if ($row['status'] === 'Pending'): ?>
-                        <a href="?id=<?= $row['id'] ?>&action=approve"
-                          class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs md:text-sm flex items-center justify-center sm:justify-start">
-                          ✅ <span class="hidden md:inline ml-1">Approve</span>
-                        </a>
-                        <a href="?id=<?= $row['id'] ?>&action=reject"
-                          class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs md:text-sm flex items-center justify-center sm:justify-start">
-                          ❌ <span class="hidden md:inline ml-1">Reject</span>
-                        </a>
+                        <form method="POST" class="flex gap-1 sm:gap-2">
+                          <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                          <button name="action" value="approve"
+                            class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs md:text-sm flex items-center justify-center sm:justify-start">
+                            ✅ <span class="hidden md:inline ml-1">Approve</span>
+                          </button>
+                          <button name="action" value="reject"
+                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs md:text-sm flex items-center justify-center sm:justify-start">
+                            ❌ <span class="hidden md:inline ml-1">Reject</span>
+                          </button>
+                        </form>
                       <?php else: ?>
                         <span class="text-gray-500 italic text-xs md:text-sm text-center">Completed</span>
                       <?php endif; ?>
@@ -125,24 +136,22 @@ $result = $conn->query($sql);
                 <?php endwhile; ?>
               <?php else: ?>
                 <tr>
-                  <td colspan="6" class="text-center text-gray-500 py-4">No leave requests found.</td>
+                  <td colspan="8" class="text-center text-gray-500 py-4">No leave requests found.</td>
                 </tr>
               <?php endif; ?>
             </tbody>
           </table>
         </div>
 
-          <div class="mt-4 md:mt-6 items">
-            <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 flex items-center text-sm md:text-base">
-              <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
-            </a>
-          </div>
+        <div class="mt-4 md:mt-6">
+          <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 flex items-center text-sm md:text-base">
+            <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
+          </a>
         </div>
-
+      </div>
     </main>
   </div>
 
   <script src="../assets/js/script.js"></script>
 </body>
-
 </html>

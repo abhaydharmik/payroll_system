@@ -23,7 +23,7 @@ function togglePassword(id) {
   }
 }
 
-// Sidebar Toggle Logic 'sidebar.php'
+// Sidebar Toggle Logic 'sidebar.php & sidebaremp.php'
 const sidebar = document.getElementById("sidebar");
 const toggleBtn = document.getElementById("sidebarToggle");
 const overlay = document.getElementById("overlay");

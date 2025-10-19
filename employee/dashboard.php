@@ -9,86 +9,160 @@ if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'employee') {
 }
 
 $emp = $_SESSION['user'];
+$user_id = $emp['id'];
+
+// ---------- Stats ----------
+$presentTodayQuery = $conn->prepare("SELECT COUNT(*) as total FROM attendance WHERE user_id=? AND date=CURDATE() AND status='Present'");
+$presentTodayQuery->bind_param("i", $user_id);
+$presentTodayQuery->execute();
+$presentToday = $presentTodayQuery->get_result()->fetch_assoc()['total'] ?? 0;
+
+$totalAllowedLeave = 20; // yearly allowance
+$usedLeaveQuery = $conn->prepare("SELECT COUNT(*) as total FROM leaves WHERE user_id=? AND status='Approved'");
+$usedLeaveQuery->bind_param("i", $user_id);
+$usedLeaveQuery->execute();
+$usedLeave = $usedLeaveQuery->get_result()->fetch_assoc()['total'] ?? 0;
+$leaveBalance = max($totalAllowedLeave - $usedLeave, 0);
+
+$currentMonth = date('F Y');
+$salaryQuery = $conn->prepare("SELECT total, generated_at FROM salaries WHERE user_id=? AND month=?");
+$salaryQuery->bind_param("is", $user_id, $currentMonth);
+$salaryQuery->execute();
+$salaryData = $salaryQuery->get_result()->fetch_assoc();
+$thisMonthSalary = $salaryData['total'] ?? 0;
+$salaryDate = isset($salaryData['generated_at']) ? date("d M, Y", strtotime($salaryData['generated_at'])) : "Not Generated";
+
+// Recent Attendance
+$recentAttendance = $conn->prepare("SELECT date, status FROM attendance WHERE user_id=? ORDER BY date DESC LIMIT 5");
+$recentAttendance->bind_param("i", $user_id);
+$recentAttendance->execute();
+$recentData = $recentAttendance->get_result();
 ?>
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Employee Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome CDN -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Employee Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    #sidebar {
+      transition: transform 0.3s ease-in-out;
+    }
+
+    @media (max-width: 767px) {
+      #sidebar.mobile-hidden {
+        transform: translateX(-100%);
+      }
+    }
+  </style>
 </head>
 
-<body class="bg-gray-100 flex">
+<body class="bg-gray-100">
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-blue-800 text-white flex flex-col fixed h-screen">
-        <div class="p-6 border-b border-blue-700">
-            <h1 class="text-xl font-bold flex items-center">
-                <i class="fa-solid fa-chart-line mr-2"></i> Employee Panel
-            </h1>
+  <!-- Sidebar -->
+  <?php include '../includes/sidebaremp.php'; ?>
+
+  <!-- Overlay for Mobile -->
+  <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30 md:hidden"></div>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col min-h-screen md:ml-64">
+    <!-- Navbar -->
+    <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
+      <div class="flex items-center space-x-3">
+        <!-- Mobile menu button -->
+        <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
+          <i class="fa-solid fa-bars text-xl"></i>
+        </button>
+        <h1 class="text-lg md:text-xs font-semibold text-gray-700">Employee Dashboard</h1>
+      </div>
+      <div class="flex items-center space-x-3">
+        <span class="text-gray-700 flex items-center">
+          <i class="fas fa-user-circle text-blue-600 mr-1"></i>
+          <?= htmlspecialchars($emp['name']) ?>
+        </span>
+        <a href="../logout.php" class="text-red-600 hover:text-red-800">
+          <i class="fas fa-sign-out-alt text-lg"></i>
+        </a>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
+      <!-- Stats Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-4 mb-8">
+        <div class="bg-white rounded-lg shadow p-5 flex items-center justify-between border-l-4 border-blue-600">
+          <div>
+            <h3 class="text-gray-500 text-sm">Present Today</h3>
+            <p class="text-2xl font-bold"><?= $presentToday ?></p>
+          </div>
+          <i class="fa-solid fa-calendar-check text-blue-600 text-3xl"></i>
         </div>
-        <nav class="flex-1 px-4 py-6 space-y-2">
-            <a href="dashboard.php" class="block py-2 px-3 rounded-lg bg-blue-700">
-                <i class="fa-solid fa-gauge mr-2"></i> Dashboard
-            </a>
-            <a href="profile.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-                <i class="fa-solid fa-users mr-2"></i> Profile
-            </a>
-            <a href="attendance.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-                <i class="fa-solid fa-calendar-check mr-2"></i> My Attendance
-            </a>
-            <a href="leaves.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-                <i class="fa-solid fa-file-signature mr-2"></i> My Leaves
-            </a>
-            <a href="salary.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-                <i class="fa-solid fa-sack-dollar mr-2"></i> Salary Slips
-            </a>
-            <a href="reports.php" class="block py-2 px-3 rounded-lg hover:bg-blue-700">
-                <i class="fa-solid fa-file-invoice-dollar mr-2"></i> My Reports
-            </a>
-        </nav>
-        <div class="p-4 border-t border-blue-700">
-            <p class="text-sm">&copy; <?php echo date("Y"); ?> <span class="font-semibold">Payroll System</span>. All rights reserved.</p>
+
+        <div class="bg-white rounded-lg shadow p-5 flex items-center justify-between border-l-4 border-yellow-600">
+          <div>
+            <h3 class="text-gray-500 text-sm">Leave Balance</h3>
+            <p class="text-2xl font-bold"><?= $leaveBalance ?></p>
+          </div>
+          <i class="fa-solid fa-file-signature text-yellow-600 text-3xl"></i>
         </div>
-    </aside>
 
-    <!-- Main Content -->
-    <main class="flex-1 ml-64 p-8">
-        <header class="bg-white shadow px-6 py-4 flex justify-between items-center rounded">
-            <h2 class="text-lg font-semibold text-gray-700">Dashboard</h2>
-            <div class="flex items-center space-x-4">
-                <span class="text-gray-700"><i class="fas fa-user-circle text-blue-600 mr-1"></i><?php echo htmlspecialchars($emp['name']); ?></span>
-                <a href="../logout.php" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"><i class="fas fa-sign-out-alt mr-1"></i>Logout</a>
-            </div>
-        </header>
+        <div class="bg-white rounded-lg shadow p-5 flex items-center justify-between border-l-4 border-purple-600">
+          <div>
+            <h3 class="text-gray-500 text-sm">This Month Salary</h3>
+            <p class="text-2xl font-bold">₹<?= number_format($thisMonthSalary, 2) ?></p>
+            <p class="text-xs text-gray-500 mt-1">Paid on <?= $salaryDate ?></p>
+          </div>
+          <i class="fa-solid fa-sack-dollar text-purple-600 text-3xl"></i>
+        </div>
 
-        <!-- Main Section -->
-        <!-- <div class="bg-white rounded-lg shadow p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">
-                    Welcome, <?php echo htmlspecialchars($emp['name']); ?> <i class="fas fa-smile-beam text-yellow-500"></i>
-                </h2>
-                <p class="text-gray-600 mb-2"><strong>Email:</strong> <?php echo htmlspecialchars($emp['email']); ?></p>
-                <p class="text-gray-600"><strong>Role:</strong> Employee</p>
-            </div> -->
+        <div class="bg-white rounded-lg shadow p-5 flex items-center justify-between border-l-4 border-green-600">
+          <div>
+            <h3 class="text-gray-500 text-sm">Performance</h3>
+            <p class="text-2xl font-bold">
+              <?php
+              $totalDaysQuery = $conn->prepare("SELECT COUNT(*) as total FROM attendance WHERE user_id=? AND MONTH(date)=MONTH(CURDATE())");
+              $totalDaysQuery->bind_param("i", $user_id);
+              $totalDaysQuery->execute();
+              $totalDays = $totalDaysQuery->get_result()->fetch_assoc()['total'] ?? 1;
+              $presentDaysQuery = $conn->prepare("SELECT COUNT(*) as total FROM attendance WHERE user_id=? AND status='Present' AND MONTH(date)=MONTH(CURDATE())");
+              $presentDaysQuery->bind_param("i", $user_id);
+              $presentDaysQuery->execute();
+              $presentDays = $presentDaysQuery->get_result()->fetch_assoc()['total'] ?? 0;
+              $performanceScore = ($totalDays > 0) ? ($presentDays / $totalDays) * 5 : 0;
+              $performanceScore = round($performanceScore, 1);
+              echo $performanceScore;
+              ?>
+            </p>
+          </div>
+          <i class="fa-solid fa-chart-line text-green-600 text-3xl"></i>
+        </div>
+      </div>
 
-        <!-- Quick Actions -->
-        <!-- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
-                <a href="profile.php" class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-6 shadow-md text-center">
-                    <h3 class="text-lg font-semibold"><i class="fas fa-user mb-2"></i><br>Profile</h3>
-                </a>
-                <a href="attendance.php" class="bg-green-500 hover:bg-green-600 text-white rounded-lg p-6 shadow-md text-center">
-                    <h3 class="text-lg font-semibold"><i class="fas fa-clock mb-2"></i><br>Attendance</h3>
-                </a>
-                <a href="leaves.php" class="bg-yellow-500 hover:bg-yellow-600 text-white rounded-lg p-6 shadow-md text-center">
-                    <h3 class="text-lg font-semibold"><i class="fas fa-file-alt mb-2"></i><br>Leaves</h3>
-                </a>
-                <a href="salary.php" class="bg-purple-500 hover:bg-purple-600 text-white rounded-lg p-6 shadow-md text-center">
-                    <h3 class="text-lg font-semibold"><i class="fas fa-money-bill-wave mb-2"></i><br>Salary</h3>
-                </a>
-            </div> -->
+      <!-- Recent Attendance -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-lg font-bold mb-4">Recent Attendance</h3>
+        <ul class="divide-y">
+          <?php while ($row = $recentData->fetch_assoc()): ?>
+            <li class="flex justify-between py-2">
+              <span><?= date("M d, Y", strtotime($row['date'])) ?></span>
+              <span class="px-2 py-1 rounded text-xs <?= $row['status']=='Present' ? 'bg-green-100 text-green-700' : ($row['status']=='Leave' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') ?>">
+                <?= $row['status'] ?>
+              </span>
+            </li>
+          <?php endwhile; ?>
+          <?php if ($recentData->num_rows == 0): ?>
+            <p class="text-gray-500 text-sm">No attendance records found.</p>
+          <?php endif; ?>
+        </ul>
+      </div>
+    </main>
+  </div>
+
+  <script src="../assets/js/script.js"></script>
 </body>
 
 </html>

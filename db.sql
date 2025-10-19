@@ -22,7 +22,7 @@ CREATE TABLE attendance (
 
 -- Leave requests
 CREATE TABLE leaves (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,      
     user_id INT NOT NULL,
     reason VARCHAR(255),
     status ENUM('Pending','Approved','Rejected') DEFAULT 'Pending',
@@ -78,3 +78,10 @@ CREATE TABLE activities (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+ALTER TABLE users 
+ADD COLUMN profile_image VARCHAR(255) NULL AFTER password;
+ADD COLUMN phone VARCHAR(20) NULL,
+ADD COLUMN address VARCHAR(255) NULL,
+ADD COLUMN dob DATE NULL,
+ADD COLUMN join_date DATE NULL;
