@@ -4,8 +4,8 @@ require '../config.php';
 
 // Only employees can access
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'employee') {
-    header('Location: ../index.php');
-    exit;
+  header('Location: ../index.php');
+  exit;
 }
 
 $emp = $_SESSION['user'];
@@ -77,7 +77,7 @@ $recentData = $recentAttendance->get_result();
         <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
           <i class="fa-solid fa-bars text-xl"></i>
         </button>
-        <h1 class="text-lg md:text-xs font-semibold text-gray-700">Employee Dashboard</h1>
+        <h1 class="text-lg font-semibold text-gray-700">Employee Dashboard</h1>
       </div>
       <div class="flex items-center space-x-3">
         <span class="text-gray-700 flex items-center">
@@ -94,32 +94,47 @@ $recentData = $recentAttendance->get_result();
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-4 mb-8">
-        <div class="bg-white rounded-lg shadow p-5 flex items-center justify-between border-l-4 border-blue-600">
+        <!-- bg-white rounded-xl shadow-sm border border-gray-200 p-6 -->
+        <div class="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between border border-gray-200">
           <div>
             <h3 class="text-gray-500 text-sm">Present Today</h3>
             <p class="text-2xl font-bold"><?= $presentToday ?></p>
           </div>
-          <i class="fa-solid fa-calendar-check text-blue-600 text-3xl"></i>
+          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-6 h-6 text-green-600">
+              <path d="M8 2v4"></path>
+              <path d="M16 2v4"></path>
+              <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+              <path d="M3 10h18"></path>
+            </svg></div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-5 flex items-center justify-between border-l-4 border-yellow-600">
+        <div class="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between border border-gray-200">
           <div>
             <h3 class="text-gray-500 text-sm">Leave Balance</h3>
             <p class="text-2xl font-bold"><?= $leaveBalance ?></p>
           </div>
-          <i class="fa-solid fa-file-signature text-yellow-600 text-3xl"></i>
+          <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text w-6 h-6 text-blue-600">
+              <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path>
+              <path d="M14 2v4a2 2 0 0 0 2 2h4"></path>
+              <path d="M10 9H8"></path>
+              <path d="M16 13H8"></path>
+              <path d="M16 17H8"></path>
+            </svg></div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-5 flex items-center justify-between border-l-4 border-purple-600">
+        <div class="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between border border-gray-200">
           <div>
             <h3 class="text-gray-500 text-sm">This Month Salary</h3>
             <p class="text-2xl font-bold">₹<?= number_format($thisMonthSalary, 2) ?></p>
             <p class="text-xs text-gray-500 mt-1">Paid on <?= $salaryDate ?></p>
           </div>
-          <i class="fa-solid fa-sack-dollar text-purple-600 text-3xl"></i>
+          <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dollar-sign w-6 h-6 text-purple-600">
+              <line x1="12" x2="12" y1="2" y2="22"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg></div>
         </div>
 
-        <div class="bg-white rounded-lg shadow p-5 flex items-center justify-between border-l-4 border-green-600">
+        <div class="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between border border-gray-200">
           <div>
             <h3 class="text-gray-500 text-sm">Performance</h3>
             <p class="text-2xl font-bold">
@@ -138,18 +153,20 @@ $recentData = $recentAttendance->get_result();
               ?>
             </p>
           </div>
-          <i class="fa-solid fa-chart-line text-green-600 text-3xl"></i>
+          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-chart-line text-green-600 text-2xl"></i>
+          </div>
         </div>
       </div>
 
       <!-- Recent Attendance -->
-      <div class="bg-white rounded-lg shadow p-6">
+      <div class="bg-white rounded-xl shadow-sm p-6">
         <h3 class="text-lg font-bold mb-4">Recent Attendance</h3>
         <ul class="divide-y">
           <?php while ($row = $recentData->fetch_assoc()): ?>
             <li class="flex justify-between py-2">
               <span><?= date("M d, Y", strtotime($row['date'])) ?></span>
-              <span class="px-2 py-1 rounded text-xs <?= $row['status']=='Present' ? 'bg-green-100 text-green-700' : ($row['status']=='Leave' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') ?>">
+              <span class="px-2 py-1 rounded text-xs <?= $row['status'] == 'Present' ? 'bg-green-100 text-green-700' : ($row['status'] == 'Leave' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') ?>">
                 <?= $row['status'] ?>
               </span>
             </li>

@@ -115,51 +115,73 @@ $netSalary = $latestSalary['total'] ?? 0;
 
             <!-- Stats Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <div class="bg-white rounded-lg shadow p-5 border-l-4 border-blue-500">
-                    <div class="flex items-center justify-between">
-                        <div>
+                <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-blue-100 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar h-6 w-6 text-blue-600">
+                                <path d="M8 2v4"></path>
+                                <path d="M16 2v4"></path>
+                                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                                <path d="M3 10h18"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
                             <p class="text-sm text-gray-500">Total Working Days</p>
-                            <p class="text-3xl font-bold text-gray-800 mt-1"><?= $totalWorkingDays ?></p>
+                            <p class="text-2xl font-bold text-gray-800"><?= $totalWorkingDays ?></p>
                         </div>
-                        <div class="bg-blue-100 p-3 rounded-lg">
-                            <i class="fa-solid fa-calendar-days text-blue-600 text-2xl"></i>
-                        </div>
+                        <!-- <i class="fa-solid fa-calendar-days text-blue-600 text-2xl"></i> -->
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-5 border-l-4 border-green-500">
-                    <div class="flex items-center justify-between">
-                        <div>
+                <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-green-100 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle h-6 w-6 text-green-600">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                                <path d="m9 11 3 3L22 4"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
                             <p class="text-sm text-gray-500">Days Present</p>
-                            <p class="text-3xl font-bold text-gray-800 mt-1"><?= $daysPresent ?></p>
+                            <p class="text-2xl font-bold text-gray-800"><?= $daysPresent ?></p>
                         </div>
-                        <div class="bg-green-100 p-3 rounded-lg">
-                            <i class="fa-solid fa-check-circle text-green-600 text-2xl"></i>
-                        </div>
+
+                        <!-- <i class="fa-solid fa-check-circle text-green-600 text-2xl"></i> -->
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-5 border-l-4 border-yellow-500">
-                    <div class="flex items-center justify-between">
-                        <div>
+                <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-yellow-100 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock h-6 w-6 text-yellow-600">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
                             <p class="text-sm text-gray-500">Total Leaves</p>
-                            <p class="text-3xl font-bold text-gray-800 mt-1"><?= $annualLeave + $sickLeave + $personalLeave ?></p>
+                            <p class="text-2xl font-bold text-gray-800"><?= $annualLeave + $sickLeave + $personalLeave ?></p>
                         </div>
-                        <div class="bg-yellow-100 p-3 rounded-lg">
-                            <i class="fa-solid fa-umbrella-beach text-yellow-600 text-2xl"></i>
-                        </div>
+
+                        <!-- <i class="fa-solid fa-umbrella-beach text-yellow-600 text-2xl"></i> -->
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow p-5 border-l-4 border-red-500">
-                    <div class="flex items-center justify-between">
-                        <div>
+                <div class="bg-white rounded-lg shadow-sm p-5 border border-gray-200">
+                    <div class="flex items-center">
+                        <div class="p-3 bg-red-100 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-xcircle h-6 w-6 text-red-600">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="m15 9-6 6"></path>
+                                <path d="m9 9 6 6"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-4">
                             <p class="text-sm text-gray-500">Days Absent</p>
-                            <p class="text-3xl font-bold text-gray-800 mt-1"><?= $totalAbsent ?></p>
+                            <p class="text-2xl font-bold text-gray-800"><?= $totalAbsent ?></p>
                         </div>
-                        <div class="bg-red-100 p-3 rounded-lg">
-                            <i class="fa-solid fa-xmark-circle text-red-600 text-2xl"></i>
-                        </div>
+
+                        <!-- <i class="fa-solid fa-xmark-circle text-red-600 text-2xl"></i> -->
                     </div>
                 </div>
             </div>
@@ -169,9 +191,12 @@ $netSalary = $latestSalary['total'] ?? 0;
                 <!-- Attendance Report -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-start mb-4">
-                        <div class="bg-blue-100 p-3 rounded-lg mr-4">
-                            <i class="fa-solid fa-calendar-check text-blue-600 text-xl"></i>
-                        </div>
+                        <div class="p-3 bg-blue-100 rounded-lg mr-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar h-6 w-6 text-blue-600">
+                                <path d="M8 2v4"></path>
+                                <path d="M16 2v4"></path>
+                                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                                <path d="M3 10h18"></path>
+                            </svg></div>
                         <div class="flex-1">
                             <h3 class="text-lg font-bold text-gray-800">Attendance Report</h3>
                             <p class="text-sm text-gray-500">Monthly attendance summary</p>
@@ -191,17 +216,24 @@ $netSalary = $latestSalary['total'] ?? 0;
                             <span class="font-semibold text-yellow-600">1</span>
                         </div>
                     </div>
-                    <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
-                        <i class="fa-solid fa-download mr-2"></i>Download PDF
-                    </button>
+                    <form action="attendance_report.php" method="get" target="_blank">
+                        <button type="submit"
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
+                            <i class="fa-solid fa-download mr-2"></i>Download PDF
+                        </button>
+                    </form>
+
                 </div>
 
                 <!-- Leave Report -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-start mb-4">
-                        <div class="bg-green-100 p-3 rounded-lg mr-4">
-                            <i class="fa-solid fa-file-lines text-green-600 text-xl"></i>
-                        </div>
+                        <div class="p-3 bg-green-100 rounded-lg mr-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar h-6 w-6 text-green-600">
+                                <path d="M8 2v4"></path>
+                                <path d="M16 2v4"></path>
+                                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+                                <path d="M3 10h18"></path>
+                            </svg></div>
                         <div class="flex-1">
                             <h3 class="text-lg font-bold text-gray-800">Leave Report</h3>
                             <p class="text-sm text-gray-500">Leave balance and history</p>
@@ -221,17 +253,21 @@ $netSalary = $latestSalary['total'] ?? 0;
                             <span class="font-semibold text-blue-600"><?= $personalLeave ?>/5 used</span>
                         </div>
                     </div>
-                    <button class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
-                        <i class="fa-solid fa-download mr-2"></i>Download PDF
-                    </button>
+                    <form action="./leave_report.php" method="get" target="_blank">
+                        <button type="submit"
+                            class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
+                            <i class="fa-solid fa-download mr-2"></i>Download PDF
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Salary Report -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-start mb-4">
-                        <div class="bg-purple-100 p-3 rounded-lg mr-4">
-                            <i class="fa-solid fa-money-bill-wave text-purple-600 text-xl"></i>
-                        </div>
+                        <div class="p-3 bg-purple-100 rounded-lg mr-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dollar-sign h-6 w-6 text-purple-600">
+                                <line x1="12" x2="12" y1="2" y2="22"></line>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                            </svg></div>
                         <div class="flex-1">
                             <h3 class="text-lg font-bold text-gray-800">Salary Report</h3>
                             <p class="text-sm text-gray-500">Monthly salary breakdown</p>
@@ -251,17 +287,21 @@ $netSalary = $latestSalary['total'] ?? 0;
                             <span class="font-semibold text-green-600">₹<?= number_format($netSalary, 2) ?></span>
                         </div>
                     </div>
-                    <button class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
-                        <i class="fa-solid fa-download mr-2"></i>Download PDF
-                    </button>
+                    <form action="./salary_report.php" method="get" target="_blank">
+                        <button type="submit"
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
+                            <i class="fa-solid fa-download mr-2"></i>Download PDF
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Performance Report -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-start mb-4">
-                        <div class="bg-orange-100 p-3 rounded-lg mr-4">
-                            <i class="fa-solid fa-chart-line text-orange-600 text-xl"></i>
-                        </div>
+                        <div class="p-3 bg-yellow-100 rounded-lg mr-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up h-6 w-6 text-yellow-600">
+                                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+                                <polyline points="16 7 22 7 22 13"></polyline>
+                            </svg></div>
                         <div class="flex-1">
                             <h3 class="text-lg font-bold text-gray-800">Performance Report</h3>
                             <p class="text-sm text-gray-500">Quarterly performance summary</p>
@@ -281,19 +321,22 @@ $netSalary = $latestSalary['total'] ?? 0;
                             <span class="font-semibold text-gray-800">12</span>
                         </div>
                     </div>
-                    <button class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
-                        <i class="fa-solid fa-download mr-2"></i>Download PDF
-                    </button>
+                    <form action="./performance_report.php" method="get" target="_blank">
+                        <button type="submit"
+                            class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
+                            <i class="fa-solid fa-download mr-2"></i>Download PDF
+                        </button>
+                    </form>
                 </div>
             </div>
 
             <!-- Recent Downloads -->
-            <div class="bg-white rounded-lg shadow-md p-6">
+            <!-- <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-lg font-bold text-gray-800 mb-2">Recent Downloads</h3>
                 <p class="text-sm text-gray-500 mb-4">Your recently downloaded reports</p>
 
                 <div class="space-y-3">
-                    <!-- Download Item -->
+                    Download Item
                     <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                         <div class="flex items-center space-x-3">
                             <div class="bg-blue-100 p-2 rounded">
@@ -354,7 +397,7 @@ $netSalary = $latestSalary['total'] ?? 0;
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> -->
         </main>
     </div>
 

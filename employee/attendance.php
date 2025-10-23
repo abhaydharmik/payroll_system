@@ -12,13 +12,13 @@ $user_id = $emp['id'];
 $today = date('Y-m-d');
 $message = "";
 
-// ✅ Check if today's record exists
+// Check if today's record exists
 $stmt = $conn->prepare("SELECT * FROM attendance WHERE user_id=? AND date=?");
 $stmt->bind_param("is", $user_id, $today);
 $stmt->execute();
 $todayRecord = $stmt->get_result()->fetch_assoc();
 
-// ✅ Handle Clock In
+// Handle Clock In
 if (isset($_POST['clock_in'])) {
   if ($todayRecord) {
     $message = "<span class='text-yellow-600'>You already clocked in today.</span>";
@@ -32,7 +32,7 @@ if (isset($_POST['clock_in'])) {
   }
 }
 
-// ✅ Handle Clock Out
+// Handle Clock Out
 if (isset($_POST['clock_out'])) {
   if (!$todayRecord || !$todayRecord['clock_in']) {
     $message = "<span class='text-red-600'>You must clock in first.</span>";
@@ -54,7 +54,7 @@ if (isset($_POST['clock_out'])) {
   }
 }
 
-// ✅ Fetch attendance history
+// Fetch attendance history
 $stmt = $conn->prepare("SELECT * FROM attendance WHERE user_id=? ORDER BY date DESC LIMIT 10");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -120,8 +120,33 @@ $attendance = $stmt->get_result();
         </div>
       <?php endif; ?>
 
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center  mb-6 space-y-4 sm:space-y-0">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">My Attendance</h2>
+          <p class="text-gray-600">Track your attendance and working hours</p>
+        </div>
+        <div class="flex space-x-3">
+          <form method="POST" class="flex flex-col sm:flex-row gap-3">
+            <button type="submit" name="clock_in" class="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-all flex items-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock w-4 h-4">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Clock In</span>
+            </button>
+            <button type="submit" name="clock_out" class="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-all flex items-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock w-4 h-4">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Clock Out</span>
+            </button>
+          </form>
+        </div>
+      </div>
+
       <!-- Buttons -->
-      <div class="bg-white shadow rounded-lg p-5 flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+      <!-- <div class="p-5 flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h2 class="text-lg sm:text-xl font-semibold text-gray-700">Mark Attendance</h2>
         <form method="POST" class="flex flex-col sm:flex-row gap-3">
           <button type="submit" name="clock_in" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg w-full sm:w-auto">
@@ -131,7 +156,7 @@ $attendance = $stmt->get_result();
             <i class="fa fa-sign-out-alt mr-1"></i> Clock Out
           </button>
         </form>
-      </div>
+      </div> -->
 
       <!-- Today's Status -->
       <div class="bg-white rounded-lg shadow p-6 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
@@ -155,7 +180,7 @@ $attendance = $stmt->get_result();
       <div class="bg-white rounded-lg shadow p-6">
         <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
           <h3 class="text-base sm:text-lg font-semibold text-gray-700">Attendance History</h3>
-          <a href="export_attendance_pdf.php" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm w-full sm:w-auto text-center">
+          <a href="./attendance_report.php" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm w-full sm:w-auto text-center">
             <i class="fa fa-file-pdf mr-1"></i> Export PDF
           </a>
         </div>

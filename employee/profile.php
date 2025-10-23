@@ -146,7 +146,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
         <div class="bg-red-100 text-red-700 p-3 rounded mb-4 text-sm sm:text-base"><?= $error ?></div>
       <?php endif; ?>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">My Profile</h2>
+          <p class="text-gray-600">Manage your personal information and settings</p>
+        </div>
+        <!-- <button class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all flex items-center space-x-2" fdprocessedid="7hhzq">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-credit-card w-4 h-4">
+            <rect width="20" height="14" x="2" y="5" rx="2"></rect>
+            <line x1="2" x2="22" y1="10" y2="10"></line>
+          </svg><span>Edit Profile</span></button> -->
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 mt-4 gap-6">
 
         <!-- Left Section -->
         <div class="space-y-6">

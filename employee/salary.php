@@ -75,9 +75,9 @@ $salaries = $stmt->get_result();
                         <h2 class="text-xl md:text-2xl font-bold text-gray-800">My Salary Slips</h2>
                         <p class="text-sm text-gray-500">Download and view your salary slips</p>
                     </div>
-                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center text-sm shadow transition-colors duration-200">
-                        <i class="fas fa-file-pdf mr-2"></i> Export PDF
-                    </button>
+                    <a href="./salary_report.php" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm w-full sm:w-auto text-center">
+                        <i class="fa fa-file-pdf mr-1"></i> Export PDF
+                    </a>
                 </div>
 
                 <!-- Desktop Table View -->
