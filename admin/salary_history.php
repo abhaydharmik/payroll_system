@@ -13,6 +13,7 @@ $result = $conn->query($sql);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,6 +24,7 @@ $result = $conn->query($sql);
     #sidebar {
       transition: transform 0.3s ease-in-out;
     }
+
     @media (max-width: 767px) {
       #sidebar.mobile-hidden {
         transform: translateX(-100%);
@@ -30,6 +32,7 @@ $result = $conn->query($sql);
     }
   </style>
 </head>
+
 <body class="bg-gray-100">
 
   <!-- SIDEBAR -->
@@ -62,6 +65,12 @@ $result = $conn->query($sql);
 
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">My Profile</h2>
+          <p class="text-gray-600">Manage your personal information and settings</p>
+        </div>
+      </div>
       <div class="bg-white shadow-md rounded-lg p-4 md:p-6">
         <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
           <table class="min-w-full table-auto border-collapse">
@@ -104,16 +113,17 @@ $result = $conn->query($sql);
         </div>
       </div>
 
-        <!-- Back to Dashboard -->
-        <div class="mt-6 text-center md:text-left">
-          <a href="dashboard.php" class="text-blue-600 hover:underline flex items-center justify-center md:justify-start">
-            <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
-          </a>
-        </div>
+      <!-- Back to Dashboard -->
+      <div class="mt-6 text-center md:text-left">
+        <a href="dashboard.php" class="text-blue-600 hover:underline flex items-center justify-center md:justify-start">
+          <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
+        </a>
       </div>
-    </main>
+  </div>
+  </main>
   </div>
 
   <script src="../assets/js/script.js"></script>
 </body>
+
 </html>

@@ -12,10 +12,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['action'
   $status = ($action === 'approve') ? 'Approved' : (($action === 'reject') ? 'Rejected' : null);
 
   if ($status) {
+    // ✅ Update leave status
     $stmt = $conn->prepare("UPDATE leaves SET status=? WHERE id=?");
     $stmt->bind_param("si", $status, $id);
     $stmt->execute();
+
+    // ✅ Fetch user name for activity log
+    $userQuery = $conn->prepare("
+      SELECT u.id AS user_id, u.name AS user_name 
+      FROM leaves l 
+      JOIN users u ON l.user_id = u.id 
+      WHERE l.id = ?
+    ");
+    $userQuery->bind_param("i", $id);
+    $userQuery->execute();
+    $userData = $userQuery->get_result()->fetch_assoc();
+
+    if ($userData) {
+      // ✅ Insert activity record
+      $desc = "Leave Request {$status}: " . $userData['user_name'];
+      $activity = $conn->prepare("INSERT INTO activities (user_id, description) VALUES (?, ?)");
+      $activity->bind_param("is", $userData['user_id'], $desc);
+      $activity->execute();
+    }
   }
+
   header("Location: leaves.php");
   exit;
 }
@@ -79,58 +100,97 @@ $result = $conn->query($sql);
 
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
-      <div class="bg-white shadow-md rounded-lg p-4 md:p-6">
-        <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
-          <table class="min-w-full border-collapse table-auto text-sm">
-            <thead class="bg-blue-600 text-white text-sm uppercase">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Leave Requests</h2>
+          <p class="text-gray-600">Manage employee leave requests</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">All Leave Requests</h3>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full">
+            <thead class="bg-gray-50">
               <tr>
-                <th class="px-3 py-2 text-left">No</th>
-                <th class="px-3 py-2 text-left">Employee</th>
-                <th class="px-3 py-2 text-left hidden sm:table-cell">Type</th>
-                <th class="px-3 py-2 text-left hidden sm:table-cell">Reason</th>
-                <th class="px-3 py-2 text-left">Duration</th>
-                <th class="px-3 py-2 text-left">Applied</th>
-                <th class="px-3 py-2 text-left">Status</th>
-                <th class="px-3 py-2 text-left">Action</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">No</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody class="text-gray-700">
+            <tbody class="bg-white divide-y divide-gray-200 text-sm">
               <?php if ($result && $result->num_rows > 0): ?>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                  <tr class="border-b hover:bg-gray-50">
-                    <td class="px-3 py-2 font-medium"><?= $row['id'] ?></td>
-                    <td class="px-3 py-2"><?= htmlspecialchars($row['name']) ?></td>
-                    <td class="px-3 py-2 hidden sm:table-cell"><?= htmlspecialchars($row['leave_type']) ?></td>
-                    <td class="px-3 py-2 hidden sm:table-cell max-w-xs"><?= htmlspecialchars($row['reason']) ?></td>
-                    <td class="px-3 py-2 text-xs md:text-sm whitespace-nowrap">
-                      <?= htmlspecialchars($row['start_date']) ?> to <?= htmlspecialchars($row['end_date']) ?>
+                <?php
+                $i = 1;
+                while ($row = $result->fetch_assoc()):
+                ?>
+                  <tr class="<?= $i % 2 == 0 ? 'bg-gray-50' : 'bg-white' ?>">
+                    <td class="px-6 py-4 whitespace-nowrap font-medium text-gray-900"><?= $i++ ?></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-900"><?= htmlspecialchars($row['name']) ?></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-900"><?= htmlspecialchars($row['leave_type']) ?></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-900">
+                      <?= date("d M Y", strtotime($row['start_date'])) ?> to <?= date("d M Y", strtotime($row['end_date'])) ?>
                     </td>
-                    <td class="px-3 py-2 text-xs md:text-sm whitespace-nowrap"><?= $row['applied_at'] ?></td>
-                    <td class="px-3 py-2 whitespace-nowrap">
+                    <td class="px-6 py-4 text-gray-900 max-w-xs truncate"><?= htmlspecialchars($row['reason']) ?></td>
+                    <td class="px-6 py-4 whitespace-nowrap text-gray-900">
+                      <?= date("d M Y, h:i A", strtotime($row['applied_at'])) ?>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
                       <?php if ($row['status'] === 'Pending'): ?>
-                        <span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-medium">Pending</span>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
                       <?php elseif ($row['status'] === 'Approved'): ?>
-                        <span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium">Approved</span>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
                       <?php else: ?>
-                        <span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium">Rejected</span>
+                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>
                       <?php endif; ?>
                     </td>
-                    <td class="px-3 py-2 whitespace-nowrap flex flex-col sm:flex-row gap-1 sm:gap-2">
-                      <?php if ($row['status'] === 'Pending'): ?>
-                        <form method="POST" class="flex gap-1 sm:gap-2">
-                          <input type="hidden" name="id" value="<?= $row['id'] ?>">
-                          <button name="action" value="approve"
-                            class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs md:text-sm flex items-center justify-center sm:justify-start">
-                            ✅ <span class="hidden md:inline ml-1">Approve</span>
-                          </button>
-                          <button name="action" value="reject"
-                            class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-xs md:text-sm flex items-center justify-center sm:justify-start">
-                            ❌ <span class="hidden md:inline ml-1">Reject</span>
-                          </button>
-                        </form>
-                      <?php else: ?>
-                        <span class="text-gray-500 italic text-xs md:text-sm text-center">Completed</span>
-                      <?php endif; ?>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <div class="flex space-x-2">
+                        <?php if ($row['status'] === 'Pending'): ?>
+                          <form method="POST" class="flex space-x-2">
+                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+
+                            <!-- Approve -->
+                            <button name="action" value="approve"
+                              class="text-green-600 hover:text-green-900 p-1 hover:bg-green-50 rounded"
+                              title="Approve">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                                <path d="m9 11 3 3L22 4" />
+                              </svg>
+                            </button>
+
+                            <!-- Reject -->
+                            <button name="action" value="reject"
+                              class="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded"
+                              title="Reject">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="m15 9-6 6" />
+                                <path d="m9 9 6 6" />
+                              </svg>
+                            </button>
+                          </form>
+                        <?php endif; ?>
+
+                        <!-- View button (always visible) -->
+                        <a href="view_leave.php?id=<?= $row['id'] ?>"
+                          class="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded"
+                          title="View Details">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                            <circle cx="12" cy="12" r="3" />
+                          </svg>
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 <?php endwhile; ?>
@@ -143,15 +203,20 @@ $result = $conn->query($sql);
           </table>
         </div>
 
-        <div class="mt-4 md:mt-6">
+        <div class="p-6 border-t border-gray-200">
           <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 flex items-center text-sm md:text-base">
-            <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Dashboard
           </a>
         </div>
       </div>
+
     </main>
   </div>
 
   <script src="../assets/js/script.js"></script>
 </body>
+
 </html>

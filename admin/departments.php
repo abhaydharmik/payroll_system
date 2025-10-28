@@ -116,7 +116,14 @@ if (isset($_GET['edit'])) {
 
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
-      <div class="bg-white shadow-md rounded-lg p-4 md:p-6">
+
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Departments</h2>
+          <p class="text-gray-600">Manage your organization’s departments and assign employees to each.</p>
+        </div>
+      </div>
+      <div class="bg-white shadow-sm rounded-lg p-4 md:p-6">
 
         <!-- Add/Edit Department Form -->
         <form method="POST" class="flex flex-col md:flex-row mb-6 space-y-2 md:space-y-0">
@@ -132,7 +139,7 @@ if (isset($_GET['edit'])) {
         </form>
 
         <!-- Departments Table -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white p-6">
           <div class="overflow-x-auto">
             <table class="w-full border-collapse table-auto min-w-max">
               <thead>

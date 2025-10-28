@@ -8,28 +8,37 @@ $message = "";
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $user_id = $_POST['user_id'];
-    $month = $_POST['month'];
-    $basic = $_POST['basic'];
-    $overtime_hours = $_POST['overtime_hours'];
-    $overtime_rate = $_POST['overtime_rate'];
-    $deductions = $_POST['deductions'];
+  $user_id = $_POST['user_id'];
+  $month = $_POST['month'];
+  $basic = $_POST['basic'];
+  $overtime_hours = $_POST['overtime_hours'];
+  $overtime_rate = $_POST['overtime_rate'];
+  $deductions = $_POST['deductions'];
 
-    $total = $basic + ($overtime_hours * $overtime_rate) - $deductions;
+  $total = $basic + ($overtime_hours * $overtime_rate) - $deductions;
 
-    $stmt = $conn->prepare("INSERT INTO salaries 
+  $stmt = $conn->prepare("INSERT INTO salaries 
         (user_id, month, basic, overtime_hours, overtime_rate, deductions, total) 
         VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("isddddd", $user_id, $month, $basic, $overtime_hours, $overtime_rate, $deductions, $total);
+  $stmt->bind_param("isddddd", $user_id, $month, $basic, $overtime_hours, $overtime_rate, $deductions, $total);
 
-    $message = $stmt->execute() ? "✅ Salary generated successfully!" : "❌ Error: " . $stmt->error;
+  $message = $stmt->execute() ? "✅ Salary generated successfully!" : "❌ Error: " . $stmt->error;
 }
 
 // Fetch employees
 $employees = $conn->query("SELECT id, name FROM users WHERE role='employee'");
+
+
+$sql = "SELECT s.id, u.name, s.month, s.basic, s.overtime_hours, s.overtime_rate, s.deductions, s.total, s.generated_at
+        FROM salaries s 
+        JOIN users u ON s.user_id=u.id 
+        ORDER BY s.generated_at DESC";
+$result = $conn->query($sql);
+?>
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -40,6 +49,7 @@ $employees = $conn->query("SELECT id, name FROM users WHERE role='employee'");
     #sidebar {
       transition: transform 0.3s ease-in-out;
     }
+
     @media (max-width: 767px) {
       #sidebar.mobile-hidden {
         transform: translateX(-100%);
@@ -47,6 +57,7 @@ $employees = $conn->query("SELECT id, name FROM users WHERE role='employee'");
     }
   </style>
 </head>
+
 <body class="bg-gray-100">
 
   <!-- Sidebar -->
@@ -80,6 +91,14 @@ $employees = $conn->query("SELECT id, name FROM users WHERE role='employee'");
 
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
+
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Salary Management</h2>
+          <p class="text-gray-600">Manage employee salaries and payroll</p>
+        </div>
+      </div>
+
       <div class="bg-white shadow-md rounded-lg p-6 max-w-3xl mx-auto w-full">
         <?php if ($message): ?>
           <div class="mb-4 p-3 rounded <?= str_contains($message, '✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
@@ -130,6 +149,48 @@ $employees = $conn->query("SELECT id, name FROM users WHERE role='employee'");
           </button>
         </form>
 
+        <div class="bg-white shadow-md rounded-lg p-4 md:p-6">
+          <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
+            <table class="min-w-full table-auto border-collapse">
+              <thead class="bg-indigo-600 text-white">
+                <tr>
+                  <th class="px-4 py-3 text-left">ID</th>
+                  <th class="px-4 py-3 text-left">Employee</th>
+                  <th class="px-4 py-3 text-left">Month</th>
+                  <th class="px-4 py-3 text-left">Basic</th>
+                  <th class="px-4 py-3 text-left">Overtime</th>
+                  <th class="px-4 py-3 text-left">Deductions</th>
+                  <th class="px-4 py-3 text-left">Total</th>
+                  <th class="px-4 py-3 text-left">Generated</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-200">
+                <?php if ($result->num_rows > 0): ?>
+                  <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr class="hover:bg-gray-50 transition">
+                      <td class="px-4 py-3"><?= $row['id'] ?></td>
+                      <td class="px-4 py-3 font-medium text-gray-800"><?= htmlspecialchars($row['name']) ?></td>
+                      <td class="px-4 py-3"><?= htmlspecialchars($row['month']) ?></td>
+                      <td class="px-4 py-3 text-gray-800">₹<?= number_format($row['basic'], 2) ?></td>
+                      <td class="px-4 py-3 text-gray-700">
+                        <?= $row['overtime_hours'] ?> hrs
+                        <div class="text-sm text-gray-500">@ ₹<?= number_format($row['overtime_rate'], 2) ?></div>
+                      </td>
+                      <td class="px-4 py-3 text-red-600 font-medium">-₹<?= number_format($row['deductions'], 2) ?></td>
+                      <td class="px-4 py-3 text-green-600 font-semibold">₹<?= number_format($row['total'], 2) ?></td>
+                      <td class="px-4 py-3 text-sm text-gray-500"><?= date("d M Y, h:i A", strtotime($row['generated_at'])) ?></td>
+                    </tr>
+                  <?php endwhile; ?>
+                <?php else: ?>
+                  <tr>
+                    <td colspan="8" class="text-center py-6 text-gray-500">No salary records found.</td>
+                  </tr>
+                <?php endif; ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         <div class="mt-6 text-center md:text-left">
           <a href="dashboard.php" class="text-blue-600 hover:underline flex items-center justify-center md:justify-start">
             <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
@@ -141,4 +202,5 @@ $employees = $conn->query("SELECT id, name FROM users WHERE role='employee'");
 
   <script src="../assets/js/script.js"></script>
 </body>
+
 </html>

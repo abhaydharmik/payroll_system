@@ -115,6 +115,13 @@ if (isset($_GET['edit'])) {
     <!-- PAGE CONTENT -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
 
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Designations</h2>
+          <p class="text-gray-600"> Manage job titles and roles across all departments.</p>
+        </div>
+      </div>
+
       <!-- Flash Message -->
       <?php if ($message): ?>
         <div class="p-3 mb-4 rounded <?= $messageType == 'error' ? 'bg-red-500' : 'bg-green-500' ?> text-white text-sm">

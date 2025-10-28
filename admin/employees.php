@@ -68,71 +68,119 @@ $result = $conn->query($sql);
 
     <!-- PAGE CONTENT -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
-      <div class="bg-white shadow-md rounded-lg p-4 sm:p-6">
-        <!-- <h2 class="text-2xl font-semibold text-gray-800 mb-4">Employee Directory</h2> -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900">Employees</h2>
+          <p class="text-gray-600">Manage your workforce</p>
+        </div>
 
-        <!-- Top Actions -->
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 space-y-3 sm:space-y-0">
-          <a href="add_employee.php" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 flex items-center w-full sm:w-auto justify-center">
-            <i class="fa-solid fa-user-plus mr-1"></i> Add Employee
+        <div class="text-sm">
+          <a href="add_employee.php" class="bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700 flex items-center w-full sm:w-auto justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus mr-1">
+              <path d="M5 12h14" />
+              <path d="M12 5v14" />
+            </svg> Add Employee
           </a>
-
-          <form method="get" class="flex flex-col sm:flex-row sm:items-center w-full sm:w-auto space-y-2 sm:space-y-0 sm:space-x-2">
-            <label for="department_id" class="text-gray-700 font-medium whitespace-nowrap">Filter by Dept:</label>
-            <select name="department_id" id="department_id" class="border border-gray-300 rounded px-3 py-2 w-full sm:w-auto">
-              <option value="">All Departments</option>
-              <?php while ($d = $departments->fetch_assoc()): ?>
-                <option value="<?= $d['id'] ?>" <?= ($selectedDept == $d['id']) ? 'selected' : '' ?>>
-                  <?= htmlspecialchars($d['name']) ?>
-                </option>
-              <?php endwhile; ?>
-            </select>
-            <button type="submit" class="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-900 w-full sm:w-auto justify-center">
-              <i class="fa-solid fa-filter mr-1"></i> Apply
-            </button>
-          </form>
         </div>
+      </div>
 
-        <!-- Employee Table -->
-        <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
-          <table class="min-w-max w-full border-collapse border border-gray-300 min-w-[650px]">
-            <thead>
-              <tr class="bg-gray-200 text-xs sm:text-sm md:text-base uppercase tracking-wider">
-                <th class="border px-3 py-2 text-left">ID</th>
-                <th class="border px-3 py-2 text-left">Name</th>
-                <th class="border px-3 py-2 text-left hidden sm:table-cell">Email</th>
-                <th class="border px-3 py-2 text-left">Department</th>
-                <th class="border px-3 py-2 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php if ($result->num_rows > 0): ?>
-                <?php while ($row = $result->fetch_assoc()): ?>
-                  <tr class="hover:bg-gray-100 text-sm sm:text-base">
-                    <td class="border px-3 py-2 text-xs sm:text-sm font-medium"><?= $row['id'] ?></td>
-                    <td class="border px-3 py-2"><?= htmlspecialchars($row['name']) ?></td>
-                    <td class="border px-3 py-2 hidden sm:table-cell text-sm text-gray-600"><?= htmlspecialchars($row['email']) ?></td>
-                    <td class="border px-3 py-2">
-                      <?= $row['department'] ? htmlspecialchars($row['department']) : '<span class="text-gray-400 italic text-sm">N/A</span>' ?>
-                    </td>
-                    <td class="border px-3 py-2 space-x-2 text-center whitespace-nowrap">
-                      <a href="edit_employee.php?id=<?= $row['id'] ?>" class="text-blue-600 hover:text-blue-800 text-sm sm:text-base">
-                        <i class="fa-solid fa-pen-to-square"></i> <span class="hidden sm:inline">Edit</span>
-                      </a>
-                      <a href="delete_employee.php?id=<?= $row['id'] ?>" class="text-red-600 hover:text-red-800 text-sm sm:text-base" onclick="return confirm('Are you sure?')">
-                        <i class="fa-solid fa-trash"></i> <span class="hidden sm:inline">Delete</span>
-                      </a>
-                    </td>
-                  </tr>
-                <?php endwhile; ?>
-              <?php else: ?>
+      <div class="p-4 sm:p-6">
+
+        <!-- Modern Employee Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+          <div class="p-6 border-b border-gray-200">
+            <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+              <div class="flex-1 relative">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="lucide lucide-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <path d="m21 21-4.3-4.3"></path>
+                </svg>
+                <input type="text" id="searchInput" placeholder="Search employees..."
+                  class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+              </div>
+
+              <form method="get" class="flex flex-col sm:flex-row sm:items-center w-full sm:w-auto space-y-2 sm:space-y-0 sm:space-x-2">
+                <div class="relative">
+                  <select name="department_id" id="department_id" class="appearance-none border border-gray-300 rounded-xl px-3 py-2 pr-10 text-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 cursor-pointer w-full sm:w-auto">
+                    <option value="">All Departments</option>
+                    <?php while ($d = $departments->fetch_assoc()): ?>
+                      <option value="<?= $d['id'] ?>" <?= ($selectedDept == $d['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($d['name']) ?>
+                      </option>
+                    <?php endwhile; ?>
+                  </select>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </div>
+                <button type="submit" class="bg-blue-700 text-white px-4 py-2 rounded-xl hover:bg-blue-900 w-full sm:w-auto justify-center">
+                  <i class="fa-solid fa-filter mr-1"></i> Apply
+                </button>
+              </form>
+
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50">
                 <tr>
-                  <td colspan="5" class="text-center text-gray-500 py-4">No employees found.</td>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                  <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
-              <?php endif; ?>
-            </tbody>
-          </table>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200" id="employeeTable">
+                <?php if ($result->num_rows > 0): ?>
+                  <?php while ($row = $result->fetch_assoc()): ?>
+                    <tr class="employee-row">
+                      <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                          <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                            <span class="text-sm font-medium text-blue-600">
+                              <?= strtoupper(substr($row['name'], 0, 1)) ?>
+                            </span>
+                          </div>
+                          <div class="ml-3">
+                            <div class="text-sm font-medium text-gray-900"><?= htmlspecialchars($row['name']) ?></div>
+                            <div class="text-sm text-gray-500"><?= htmlspecialchars($row['email']) ?></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        <?= $row['department'] ? htmlspecialchars($row['department']) : '<span class="text-gray-400 italic">N/A</span>' ?>
+                      </td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($row['email']) ?></td>
+                      <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                          <a href="edit_employee.php?id=<?= $row['id'] ?>" class="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                          </a>
+                          <a href="performance.php?id=<?= $row['id'] ?>" class="text-yellow-600 hover:text-yellow-900 p-1 hover:bg-yellow-50 rounded">
+                            <i class="fa-solid fa-chart-line"></i>
+                          </a>
+                          <a href="delete_employee.php?id=<?= $row['id'] ?>" onclick="return confirm('Delete this employee?')"
+                            class="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded">
+                            <i class="fa-solid fa-trash"></i>
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                  <?php endwhile; ?>
+                <?php else: ?>
+                  <tr>
+                    <td colspan="4" class="text-center text-gray-500 py-4">No employees found.</td>
+                  </tr>
+                <?php endif; ?>
+              </tbody>
+            </table>
+          </div>
         </div>
+
+
 
         <div class="mt-6">
           <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 flex items-center">

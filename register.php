@@ -9,13 +9,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
     $role = $_POST['role'];
 
-    $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $name, $email, $password, $role);
+    // Check if email already exists
+    $check = $conn->prepare("SELECT id FROM users WHERE email=?");
+    $check->bind_param("s", $email);
+    $check->execute();
+    $check->store_result();
 
-    if ($stmt->execute()) {
-        $message = "<span class='text-green-600 font-medium'>Registration successful! <a href='index.php' class='text-blue-600 underline'>Login here</a></span>";
+    if ($check->num_rows > 0) {
+        $message = "<span class='text-red-600 font-medium'>Email already registered!</span>";
     } else {
-        $message = "<span class='text-red-600 font-medium'>Error: " . $stmt->error . "</span>";
+        // Insert new user
+        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
+        $stmt->bind_param("ssss", $name, $email, $password, $role);
+
+        if ($stmt->execute()) {
+            $user_id = $conn->insert_id;
+
+            // ✅ Log activity
+            $desc = "New user registered: $name ($role)";
+            $activity = $conn->prepare("INSERT INTO activities (user_id, description) VALUES (?, ?)");
+            $activity->bind_param("is", $user_id, $desc);
+            $activity->execute();
+
+            $message = "<span class='text-green-600 font-medium'>Registration successful! 
+                        <a href='index.php' class='text-blue-600 underline'>Login here</a></span>";
+        } else {
+            $message = "<span class='text-red-600 font-medium'>Error: " . $stmt->error . "</span>";
+        }
     }
 }
 ?>

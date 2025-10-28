@@ -37,3 +37,11 @@ overlay.addEventListener("click", () => {
   sidebar.classList.add("mobile-hidden");
   overlay.classList.add("hidden");
 });
+
+document.getElementById("searchInput").addEventListener("input", function () {
+  const search = this.value.toLowerCase();
+  document.querySelectorAll("#employeeTable .employee-row").forEach((row) => {
+    const text = row.textContent.toLowerCase();
+    row.style.display = text.includes(search) ? "" : "none";
+  });
+});

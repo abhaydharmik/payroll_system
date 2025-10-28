@@ -1,6 +1,8 @@
 <?php
 session_start();
 require '../config.php';
+date_default_timezone_set('Asia/Kolkata');
+
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'employee') {
   header('Location: ../index.php');

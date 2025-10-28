@@ -79,6 +79,23 @@ CREATE TABLE activities (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE performance (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  evaluator VARCHAR(100),
+  review_date DATE,
+  punctuality INT,         -- 1–5 rating
+  teamwork INT,            -- 1–5 rating
+  productivity INT,         -- 1–5 rating
+  quality_of_work INT,      -- 1–5 rating
+  initiative INT,           -- 1–5 rating
+  remarks TEXT,
+  total_score INT,
+  rating FLOAT,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+
 ALTER TABLE users 
 ADD COLUMN profile_image VARCHAR(255) NULL AFTER password;
 ADD COLUMN phone VARCHAR(20) NULL,
