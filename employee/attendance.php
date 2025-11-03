@@ -1,6 +1,7 @@
 <?php
 session_start();
 require '../config.php';
+date_default_timezone_set('Asia/Kolkata');
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'employee') {
   header('Location: ../index.php');
@@ -18,39 +19,46 @@ $stmt->bind_param("is", $user_id, $today);
 $stmt->execute();
 $todayRecord = $stmt->get_result()->fetch_assoc();
 
-// Handle Clock In
+// 🕐 Handle Clock In
 if (isset($_POST['clock_in'])) {
   if ($todayRecord) {
     $message = "<span class='text-yellow-600'>You already clocked in today.</span>";
   } else {
-    $clockIn = date('H:i:s');
+    $clockIn = date('Y-m-d H:i:s'); // ✅ Full date-time
     $status = "Present";
     $insert = $conn->prepare("INSERT INTO attendance (user_id, date, clock_in, status) VALUES (?, ?, ?, ?)");
     $insert->bind_param("isss", $user_id, $today, $clockIn, $status);
     $insert->execute();
-    $message = "<span class='text-green-600'>Clocked in successfully at $clockIn</span>";
+    $message = "<span class='text-green-600'>Clocked in successfully at " . date('h:i A', strtotime($clockIn)) . "</span>";
   }
 }
 
-// Handle Clock Out
+// 🕒 Handle Clock Out
 if (isset($_POST['clock_out'])) {
+  // refresh record
+  $stmt = $conn->prepare("SELECT * FROM attendance WHERE user_id=? AND date=?");
+  $stmt->bind_param("is", $user_id, $today);
+  $stmt->execute();
+  $todayRecord = $stmt->get_result()->fetch_assoc();
+
   if (!$todayRecord || !$todayRecord['clock_in']) {
     $message = "<span class='text-red-600'>You must clock in first.</span>";
   } elseif ($todayRecord['clock_out']) {
     $message = "<span class='text-yellow-600'>You already clocked out today.</span>";
   } else {
-    $clockOut = date('H:i:s');
+    $clockOut = date('Y-m-d H:i:s'); // ✅ Full date-time
     $clockInTime = strtotime($todayRecord['clock_in']);
     $clockOutTime = strtotime($clockOut);
     $workedSeconds = $clockOutTime - $clockInTime;
     $hours = floor($workedSeconds / 3600);
     $minutes = floor(($workedSeconds % 3600) / 60);
-    $hoursWorked = "{$hours}h {$minutes}m";
+    $hoursWorked = sprintf("%02dh %02dm", $hours, $minutes);
 
     $update = $conn->prepare("UPDATE attendance SET clock_out=?, hours_worked=? WHERE user_id=? AND date=?");
     $update->bind_param("ssis", $clockOut, $hoursWorked, $user_id, $today);
     $update->execute();
-    $message = "<span class='text-green-600'>Clocked out successfully at $clockOut (Worked $hoursWorked)</span>";
+
+    $message = "<span class='text-green-600'>Clocked out successfully at " . date('h:i A', strtotime($clockOut)) . " (Worked $hoursWorked)</span>";
   }
 }
 
@@ -60,6 +68,7 @@ $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $attendance = $stmt->get_result();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 

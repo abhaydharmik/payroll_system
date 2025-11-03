@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $activity = "Added new employee: $name";
 
         // ✅ Include user_id in insert to satisfy foreign key
-        $activity_sql = "INSERT INTO activities (user_id, action, user_name, created_at) VALUES (?, ?, ?, NOW())";
+        $activity_sql = "INSERT INTO activities (user_id, description, user_name, created_at) VALUES (?, ?, ?, NOW())";
         $activity_stmt = $conn->prepare($activity_sql);
         $activity_stmt->bind_param("iss", $addedById, $activity, $addedBy);
         $activity_stmt->execute();

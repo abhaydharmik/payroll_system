@@ -104,10 +104,14 @@ if (isset($_GET['edit'])) {
       <div class="flex items-center space-x-3">
         <span class="text-gray-700 flex items-center">
           <i class="fas fa-user-circle text-blue-600 mr-1"></i>
-          <?= htmlspecialchars($emp['name']) ?>
+          <?php echo htmlspecialchars($emp['name']); ?>
         </span>
         <a href="../logout.php" class="text-red-600 hover:text-red-800">
-          <i class="fas fa-sign-out-alt text-lg"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out w-5 h-5">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" x2="9" y1="12" y2="12"></line>
+          </svg>
         </a>
       </div>
     </header>
@@ -130,7 +134,7 @@ if (isset($_GET['edit'])) {
       <?php endif; ?>
 
       <!-- Add / Edit Form Card -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6">
+      <div class="mb-6">
         <form method="post" class="flex flex-col md:flex-row gap-2">
           <input type="text" name="designation" placeholder="Enter Designation"
             class="border p-2 rounded flex-grow focus:outline-none focus:ring"
@@ -148,32 +152,40 @@ if (isset($_GET['edit'])) {
           <?php else: ?>
             <button type="submit" name="add"
               class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-2 md:mt-0 md:ml-2">
-              ➕ Add
+              Add
             </button>
           <?php endif; ?>
         </form>
       </div>
 
       <!-- Table Card -->
-      <div class="bg-white rounded-lg shadow p-6">
+      <div class="bg-white shadow-sm rounded-lg p-6">
         <div class="overflow-x-auto">
-          <table class="w-full border-collapse table-auto min-w-max">
-            <thead class="bg-gray-200 text-left">
+          <table class="w-full border border-gray-200 rounded-lg text-sm">
+            <thead class="bg-gray-100 text-gray-700">
               <tr>
-                <th class="p-2 border">ID</th>
-                <th class="p-2 border">Designation</th>
-                <th class="p-2 border text-center">Actions</th>
+                <th class="px-4 py-2 text-left">ID</th>
+                <th class="px-4 py-2 text-left">Designation</th>
+                <th class="px-4 py-2 text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
               <?php while ($row = $result->fetch_assoc()): ?>
-                <tr class="hover:bg-gray-50 text-center">
-                  <td class="p-2 border"><?= $row['id'] ?></td>
-                  <td class="p-2 border"><?= htmlspecialchars($row['title']) ?></td>
-                  <td class="p-2 border flex justify-center gap-2 flex-wrap">
-                    <a href="?edit=<?= $row['id'] ?>" class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600">✏ Edit</a>
-                    <a href="?delete=<?= $row['id'] ?>" onclick="return confirm('Delete this designation?')"
-                      class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">🗑 Delete</a>
+                <tr class="border-t hover:bg-gray-50 transition">
+                  <td class="px-4 py-2 text-gray-800"><?= $row['id'] ?></td>
+                  <td class="px-4 py-2 font-medium text-gray-800"><?= htmlspecialchars($row['title']) ?></td>
+                  <td class="px-4 py-2">
+                    <div class="flex justify-center flex-wrap gap-2">
+                      <a href="?edit=<?= $row['id'] ?>"
+                        class="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded text-xs transition">
+                        Edit
+                      </a>
+                      <a href="?delete=<?= $row['id'] ?>"
+                        onclick="return confirm('Are you sure you want to delete this designation?')"
+                        class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs transition">
+                        Delete
+                      </a>
+                    </div>
                   </td>
                 </tr>
               <?php endwhile; ?>
@@ -182,12 +194,14 @@ if (isset($_GET['edit'])) {
         </div>
 
         <!-- Back Button -->
-        <div class="mt-4 text-center md:text-left">
-          <a href="dashboard.php" class="text-blue-600 hover:underline flex items-center justify-center md:justify-start">
+        <div class="mt-6 text-center md:text-left">
+          <a href="dashboard.php"
+            class="text-blue-600 hover:underline flex items-center justify-center md:justify-start">
             <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
           </a>
         </div>
       </div>
+
 
     </main>
   </div>

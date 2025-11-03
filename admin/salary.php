@@ -84,13 +84,17 @@ $result = $conn->query($sql);
           <?php echo htmlspecialchars($emp['name']); ?>
         </span>
         <a href="../logout.php" class="text-red-600 hover:text-red-800">
-          <i class="fas fa-sign-out-alt text-lg"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out w-5 h-5">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" x2="9" y1="12" y2="12"></line>
+          </svg>
         </a>
       </div>
     </header>
 
     <!-- Page Content -->
-    <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
+    <main class="flex-1 pt-[3.5rem] px-4 md:px-8 pb-8">
 
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4">
         <div>
@@ -99,14 +103,14 @@ $result = $conn->query($sql);
         </div>
       </div>
 
-      <div class="bg-white shadow-md rounded-lg p-6 max-w-3xl mx-auto w-full">
+      <div class="max-w-7xl mx-auto w-full">
         <?php if ($message): ?>
           <div class="mb-4 p-3 rounded <?= str_contains($message, '✅') ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' ?>">
             <?= $message ?>
           </div>
         <?php endif; ?>
 
-        <form method="post" class="space-y-4">
+        <form method="post" class="space-y-4 bg-white p-4 rounded-lg shadow-sm">
           <div>
             <label class="block font-medium mb-1">Employee</label>
             <select name="user_id" required class="w-full border rounded p-2">
@@ -149,36 +153,37 @@ $result = $conn->query($sql);
           </button>
         </form>
 
-        <div class="bg-white shadow-md rounded-lg p-4 md:p-6">
-          <div class="overflow-x-auto shadow-sm rounded-lg border border-gray-200">
-            <table class="min-w-full table-auto border-collapse">
-              <thead class="bg-indigo-600 text-white">
+        <div class="bg-white rounded-lg shadow-sm p-4">
+          <h2 class="text-xl font-bold text-gray-900 mb-4">Salary History</h2>
+          <div class="overflow-x-auto border border-gray-200 rounded-lg">
+            <table class="w-full border-collapse text-sm">
+              <thead class="bg-gray-100 text-gray-700">
                 <tr>
-                  <th class="px-4 py-3 text-left">ID</th>
-                  <th class="px-4 py-3 text-left">Employee</th>
-                  <th class="px-4 py-3 text-left">Month</th>
-                  <th class="px-4 py-3 text-left">Basic</th>
-                  <th class="px-4 py-3 text-left">Overtime</th>
-                  <th class="px-4 py-3 text-left">Deductions</th>
-                  <th class="px-4 py-3 text-left">Total</th>
-                  <th class="px-4 py-3 text-left">Generated</th>
+                  <th class="px-4 py-2 text-left">ID</th>
+                  <th class="px-4 py-2 text-left">Employee</th>
+                  <th class="px-4 py-2 text-left">Month</th>
+                  <th class="px-4 py-2 text-left">Basic</th>
+                  <th class="px-4 py-2 text-left">Overtime</th>
+                  <th class="px-4 py-2 text-left">Deductions</th>
+                  <th class="px-4 py-2 text-left">Total</th>
+                  <th class="px-4 py-2 text-left">Generated</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-gray-200">
                 <?php if ($result->num_rows > 0): ?>
                   <?php while ($row = $result->fetch_assoc()): ?>
-                    <tr class="hover:bg-gray-50 transition">
-                      <td class="px-4 py-3"><?= $row['id'] ?></td>
-                      <td class="px-4 py-3 font-medium text-gray-800"><?= htmlspecialchars($row['name']) ?></td>
-                      <td class="px-4 py-3"><?= htmlspecialchars($row['month']) ?></td>
-                      <td class="px-4 py-3 text-gray-800">₹<?= number_format($row['basic'], 2) ?></td>
-                      <td class="px-4 py-3 text-gray-700">
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-4 py-2"><?= $row['id'] ?></td>
+                      <td class="px-4 py-2 font-medium text-gray-800"><?= htmlspecialchars($row['name']) ?></td>
+                      <td class="px-4 py-2"><?= htmlspecialchars($row['month']) ?></td>
+                      <td class="px-4 py-2 text-gray-800">₹<?= number_format($row['basic'], 2) ?></td>
+                      <td class="px-4 py-2 text-gray-700">
                         <?= $row['overtime_hours'] ?> hrs
-                        <div class="text-sm text-gray-500">@ ₹<?= number_format($row['overtime_rate'], 2) ?></div>
+                        <div class="text-xs text-gray-500">@ ₹<?= number_format($row['overtime_rate'], 2) ?></div>
                       </td>
-                      <td class="px-4 py-3 text-red-600 font-medium">-₹<?= number_format($row['deductions'], 2) ?></td>
-                      <td class="px-4 py-3 text-green-600 font-semibold">₹<?= number_format($row['total'], 2) ?></td>
-                      <td class="px-4 py-3 text-sm text-gray-500"><?= date("d M Y, h:i A", strtotime($row['generated_at'])) ?></td>
+                      <td class="px-4 py-2 text-red-600 font-medium">-₹<?= number_format($row['deductions'], 2) ?></td>
+                      <td class="px-4 py-2 text-green-600 font-semibold">₹<?= number_format($row['total'], 2) ?></td>
+                      <td class="px-4 py-2 text-sm text-gray-500"><?= date("d M Y, h:i A", strtotime($row['generated_at'])) ?></td>
                     </tr>
                   <?php endwhile; ?>
                 <?php else: ?>
@@ -190,6 +195,7 @@ $result = $conn->query($sql);
             </table>
           </div>
         </div>
+
 
         <div class="mt-6 text-center md:text-left">
           <a href="dashboard.php" class="text-blue-600 hover:underline flex items-center justify-center md:justify-start">

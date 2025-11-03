@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,12 +57,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </button>
         <h1 class="text-lg font-semibold text-gray-700 tracking-wide">Performance Evaluation</h1>
       </div>
-      <div class="flex items-center gap-3">
-        <span class="flex items-center text-gray-700">
-          <i class="fas fa-user-circle text-blue-600 mr-2"></i><?= htmlspecialchars($emp['name']); ?>
+      <div class="flex items-center space-x-3">
+        <span class="text-gray-700 flex items-center">
+          <i class="fas fa-user-circle text-blue-600 mr-1"></i>
+          <?php echo htmlspecialchars($emp['name']); ?>
         </span>
-        <a href="../logout.php" class="text-red-600 hover:text-red-800 transition">
-          <i class="fas fa-sign-out-alt text-lg"></i>
+        <a href="../logout.php" class="text-red-600 hover:text-red-800">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out w-5 h-5">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" x2="9" y1="12" y2="12"></line>
+          </svg>
         </a>
       </div>
     </header>
@@ -71,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-            <i class="fa-solid fa-chart-line text-blue-600"></i> 
+            <i class="fa-solid fa-chart-line text-blue-600"></i>
             Employee Performance Review
           </h2>
         </div>
@@ -147,4 +153,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   </script>
 
 </body>
+
 </html>
