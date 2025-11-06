@@ -17,7 +17,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+    <nav class="font-medium flex-1 px-4 py-6 space-y-2 overflow-y-auto">
         <?php
         $menuItems = [
             'dashboard.php' => [
