@@ -42,6 +42,8 @@ $departments = $conn->query("
     GROUP BY d.id
 ");
 
+$pageTitle = "Dashboard"
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -69,14 +71,15 @@ $departments = $conn->query("
 
   <!-- SIDEBAR -->
   <?php include_once '../includes/sidebar.php'; ?>
-
+  
   <!-- Overlay for Mobile -->
   <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30 md:hidden"></div>
-
+  
   <!-- MAIN CONTENT -->
   <div class="flex-1 flex flex-col min-h-screen md:ml-64">
     <!-- NAVBAR -->
-    <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
+    <?php include_once '../includes/header.php'; ?>
+    <!-- <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
       <div class="flex items-center space-x-3">
         <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
           <i class="fa-solid fa-bars text-xl"></i>
@@ -96,7 +99,7 @@ $departments = $conn->query("
           </svg>
         </a>
       </div>
-    </header>
+    </header> -->
 
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">

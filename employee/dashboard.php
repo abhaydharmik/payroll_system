@@ -65,6 +65,9 @@ $recentAttendance = $conn->prepare("SELECT date, status FROM attendance WHERE us
 $recentAttendance->bind_param("i", $user_id);
 $recentAttendance->execute();
 $recentData = $recentAttendance->get_result();
+
+$pageTitle = "Dashboard";
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -99,24 +102,8 @@ $recentData = $recentAttendance->get_result();
   <!-- Main Content -->
   <div class="flex-1 flex flex-col min-h-screen md:ml-64">
     <!-- Navbar -->
-    <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
-      <div class="flex items-center space-x-3">
-        <!-- Mobile menu button -->
-        <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
-          <i class="fa-solid fa-bars text-xl"></i>
-        </button>
-        <h1 class="text-lg font-semibold text-gray-700">Employee Dashboard</h1>
-      </div>
-      <div class="flex items-center space-x-3">
-        <span class="text-gray-700 flex items-center">
-          <i class="fas fa-user-circle text-blue-600 mr-1"></i>
-          <?= htmlspecialchars($emp['name']) ?>
-        </span>
-        <a href="../logout.php" class="text-red-600 hover:text-red-800">
-          <i class="fas fa-sign-out-alt text-lg"></i>
-        </a>
-      </div>
-    </header>
+    <?php include_once '../includes/header.php'; ?>
+
 
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
@@ -180,7 +167,7 @@ $recentData = $recentAttendance->get_result();
         <div class="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between border border-gray-200">
           <div>
             <h3 class="text-gray-500 text-sm">Performance Rating</h3>
-            <p class="text-2xl font-bold">
+            <p class="text-2xl flex items-center gap-1 font-bold">
               <?php
               // Fetch average or latest performance rating
               $perfQuery = $conn->prepare("SELECT rating, review_date FROM performance WHERE user_id=? ORDER BY review_date DESC LIMIT 1");
@@ -191,7 +178,11 @@ $recentData = $recentAttendance->get_result();
               if ($perfResult) {
                 $rating = round($perfResult['rating'], 1);
                 $reviewDate = date("d M Y", strtotime($perfResult['review_date']));
-                echo $rating . " ⭐";
+                echo $rating . 
+                '
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="yellow" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star-icon text-yellow-300 lucide-star">
+                <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>
+                </svg>';
               } else {
                 echo "No Rating Yet";
               }

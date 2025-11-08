@@ -20,8 +20,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $total_score = $punctuality + $teamwork + $productivity + $quality + $initiative;
   $rating = ($total_score / 25) * 5;
 
-  $stmt = $conn->prepare("INSERT INTO performance (user_id, evaluator, review_date, punctuality, teamwork, productivity, quality_of_work, initiative, remarks, total_score, rating)
-                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+  $stmt = $conn->prepare("INSERT INTO performance 
+      (user_id, evaluator, review_date, punctuality, teamwork, productivity, quality_of_work, initiative, remarks, total_score, rating)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
   $stmt->bind_param("issiiiiisid", $user_id, $evaluator, $review_date, $punctuality, $teamwork, $productivity, $quality, $initiative, $remarks, $total_score, $rating);
 
   if ($stmt->execute()) {
@@ -30,47 +31,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $message = "<p class='text-red-600 font-semibold bg-red-50 border border-red-200 px-4 py-2 rounded-lg mb-4'>❌ Error saving performance record.</p>";
   }
 }
+
+$pageTitle = 'Performance Evaluation';
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Performance Evaluation | Admin Panel</title>
+  <title><?= htmlspecialchars($pageTitle) ?> | Admin Panel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
-
 <body class="bg-gray-100 text-gray-800">
 
+  <!-- Sidebar -->
   <?php include_once '../includes/sidebar.php'; ?>
   <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30 md:hidden"></div>
 
+  <!-- Main content -->
   <div class="flex-1 flex flex-col min-h-screen md:ml-64">
-    <!-- Navbar -->
-    <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow-sm flex justify-between items-center px-5 py-3 z-40 border-b border-gray-200">
-      <div class="flex items-center gap-3">
-        <button id="sidebarToggle" class="md:hidden text-gray-600 focus:outline-none">
-          <i class="fa-solid fa-bars text-xl"></i>
-        </button>
-        <h1 class="text-lg font-semibold text-gray-700 tracking-wide">Performance Evaluation</h1>
-      </div>
-      <div class="flex items-center space-x-3">
-        <span class="text-gray-700 flex items-center">
-          <i class="fas fa-user-circle text-blue-600 mr-1"></i>
-          <?php echo htmlspecialchars($emp['name']); ?>
-        </span>
-        <a href="../logout.php" class="text-red-600 hover:text-red-800">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out w-5 h-5">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" x2="9" y1="12" y2="12"></line>
-          </svg>
-        </a>
-      </div>
-    </header>
+    <!-- Shared Header -->
+    <?php include_once '../includes/header.php'; ?>
 
     <!-- Page Content -->
     <main class="flex-1 pt-24 px-4 md:px-10 pb-8">
@@ -89,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-2">Select Employee</label>
             <select name="user" required class="w-full border py-2 px-2 rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500 transition">
-              <option value=""> Choose Employee </option>
+              <option value="">Choose Employee</option>
               <?php
               $res = $conn->query("SELECT id, name FROM users WHERE role='employee'");
               while ($row = $res->fetch_assoc()) {
@@ -99,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </select>
           </div>
 
-          <!-- Criteria -->
+          <!-- Criteria Fields -->
           <?php
           $criteria = [
             'punctuality' => 'Punctuality',
@@ -136,22 +119,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     </main>
   </div>
 
-  <script>
-    const sidebar = document.getElementById("sidebar");
-    const toggleBtn = document.getElementById("sidebarToggle");
-    const overlay = document.getElementById("overlay");
-
-    toggleBtn.addEventListener("click", () => {
-      sidebar.classList.toggle("mobile-hidden");
-      overlay.classList.toggle("hidden");
-    });
-
-    overlay.addEventListener("click", () => {
-      sidebar.classList.add("mobile-hidden");
-      overlay.classList.add("hidden");
-    });
-  </script>
-
 </body>
-
 </html>

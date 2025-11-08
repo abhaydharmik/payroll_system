@@ -31,6 +31,10 @@ $stmt = $conn->prepare("SELECT * FROM leaves WHERE user_id=? ORDER BY applied_at
 $stmt->bind_param("i", $emp_id);
 $stmt->execute();
 $leaves = $stmt->get_result();
+
+$pageTitle = "Leaves";
+
+
 ?>
 
 <!DOCTYPE html>
@@ -66,24 +70,8 @@ $leaves = $stmt->get_result();
   <!-- Main Content -->
   <div class="flex-1 flex flex-col min-h-screen md:ml-64">
     <!-- Navbar -->
-    <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
-      <div class="flex items-center space-x-3">
-        <!-- Mobile menu button -->
-        <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
-          <i class="fa-solid fa-bars text-xl"></i>
-        </button>
-        <h1 class="text-lg font-semibold text-gray-700">Leave Requests</h1>
-      </div>
-      <div class="flex items-center space-x-3">
-        <span class="text-gray-700 flex items-center">
-          <i class="fas fa-user-circle text-blue-600 mr-1"></i>
-          <?= htmlspecialchars($emp['name']) ?>
-        </span>
-        <a href="../logout.php" class="text-red-600 hover:text-red-800">
-          <i class="fas fa-sign-out-alt text-lg"></i>
-        </a>
-      </div>
-    </header>
+    <?php include_once '../includes/header.php'; ?>
+
 
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">

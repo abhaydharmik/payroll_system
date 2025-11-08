@@ -47,6 +47,9 @@ $sql = "SELECT l.id, u.name, l.leave_type, l.reason, l.start_date, l.end_date, l
         JOIN users u ON l.user_id=u.id 
         ORDER BY l.applied_at DESC";
 $result = $conn->query($sql);
+
+$pageTitle = "Leaves";
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -80,27 +83,7 @@ $result = $conn->query($sql);
   <!-- MAIN CONTENT -->
   <div class="flex-1 flex flex-col min-h-screen md:ml-64">
     <!-- Top Navbar -->
-    <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
-      <div class="flex items-center space-x-3">
-        <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
-          <i class="fa-solid fa-bars text-xl"></i>
-        </button>
-        <h1 class="text-lg font-semibold text-gray-700">Leave Requests</h1>
-      </div>
-      <div class="flex items-center space-x-3">
-        <span class="text-gray-700 flex items-center">
-          <i class="fas fa-user-circle text-blue-600 mr-1"></i>
-          <?php echo htmlspecialchars($emp['name']); ?>
-        </span>
-        <a href="../logout.php" class="text-red-600 hover:text-red-800">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out w-5 h-5">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" x2="9" y1="12" y2="12"></line>
-          </svg>
-        </a>
-      </div>
-    </header>
+    <?php include_once '../includes/header.php'; ?>
 
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">

@@ -16,6 +16,8 @@ if (!empty($selectedDept)) {
 }
 $sql .= " ORDER BY u.id ASC";
 $result = $conn->query($sql);
+
+$pageTitle = "Employees";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,48 +49,33 @@ $result = $conn->query($sql);
   <!-- MAIN CONTENT -->
   <div class="flex-1 flex flex-col min-h-screen md:ml-64">
     <!-- NAVBAR -->
-    <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
-      <div class="flex items-center space-x-3">
-        <!-- Mobile menu button -->
-        <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
-          <i class="fa-solid fa-bars text-xl"></i>
-        </button>
-        <h1 class="text-lg font-semibold text-gray-700">Employees</h1>
-      </div>
-      <div class="flex items-center space-x-3">
-        <span class="text-gray-700 flex items-center">
-          <i class="fas fa-user-circle text-blue-600 mr-1"></i>
-          <?php echo htmlspecialchars($emp['name']); ?>
-        </span>
-        <a href="../logout.php" class="text-red-600 hover:text-red-800">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out w-5 h-5">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" x2="9" y1="12" y2="12"></line>
-          </svg>
-        </a>
-      </div>
-    </header>
+    <?php include_once '../includes/header.php'; ?>
 
     <!-- PAGE CONTENT -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900">Employees</h2>
-          <p class="text-gray-600">Manage your workforce</p>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 px-2 sm:px-0">
+        <!-- Left Section: Title -->
+        <div class="text-center sm:text-left w-full sm:w-auto">
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Employees</h2>
+          <p class="text-gray-600 text-sm sm:text-base">Manage your workforce</p>
         </div>
 
-        <div class="text-sm">
-          <a href="add_employee.php" class="bg-blue-600 text-white p-2.5 rounded-lg hover:bg-blue-700 flex items-center w-full sm:w-auto justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus mr-1">
+        <!-- Right Section: Button -->
+        <div class="w-full sm:w-auto">
+          <a href="add_employee.php"
+            class="flex items-center justify-center gap-1.5 bg-blue-600 text-white text-sm sm:text-base px-3 sm:px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200 w-full sm:w-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" class="lucide lucide-plus">
               <path d="M5 12h14" />
               <path d="M12 5v14" />
-            </svg> Add Employee
+            </svg>
+            <span>Add Employee</span>
           </a>
         </div>
       </div>
 
-      <div class="p-4 sm:p-6">
+      <div class="">
 
         <!-- Modern Employee Table -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200">
@@ -160,13 +147,13 @@ $result = $conn->query($sql);
                       <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?= htmlspecialchars($row['email']) ?></td>
                       <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div class="flex space-x-2">
-                          <a href="edit_employee.php?id=<?= $row['id'] ?>" class="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded">
+                          <a href="edit_employee.php?id=<?= $row['id'] ?>" title="Edit" class="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded">
                             <i class="fa-solid fa-pen-to-square"></i>
                           </a>
-                          <a href="performance.php?id=<?= $row['id'] ?>" class="text-yellow-600 hover:text-yellow-900 p-1 hover:bg-yellow-50 rounded">
+                          <a href="performance.php?id=<?= $row['id'] ?>" title="performance" class="text-yellow-600 hover:text-yellow-900 p-1 hover:bg-yellow-50 rounded">
                             <i class="fa-solid fa-chart-line"></i>
                           </a>
-                          <a href="delete_employee.php?id=<?= $row['id'] ?>" onclick="return confirm('Delete this employee?')"
+                          <a href="delete_employee.php?id=<?= $row['id'] ?>" title="Delete" onclick="return confirm('Delete this employee?')"
                             class="text-red-600 hover:text-red-900 p-1 hover:bg-red-50 rounded">
                             <i class="fa-solid fa-trash"></i>
                           </a>
@@ -182,15 +169,20 @@ $result = $conn->query($sql);
               </tbody>
             </table>
           </div>
+
+          <div class="p-6 border-t border-gray-200">
+            <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 flex items-center text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg> Back to Dashboard
+            </a>
+          </div>
+
         </div>
 
 
 
-        <div class="mt-6">
-          <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 flex items-center">
-            <i class="fa-solid fa-arrow-left mr-2"></i> Back to Dashboard
-          </a>
-        </div>
+
       </div>
     </main>
   </div>

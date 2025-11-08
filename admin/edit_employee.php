@@ -3,7 +3,10 @@ require '../config.php';
 require '../includes/auth.php';
 checkRole('admin');
 
-$id = $_GET['id'];
+$emp = $_SESSION['user'];
+$pageTitle = "Edit Employee";
+
+$id = $_GET['id'] ?? 0;
 $stmt = $conn->prepare("SELECT * FROM users WHERE id=? AND role='employee'");
 $stmt->bind_param("i", $id);
 $stmt->execute();
@@ -38,36 +41,102 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 }
 ?>
+
 <!DOCTYPE html>
-<html>
-<head><title>Edit Employee</title><script src="https://cdn.tailwindcss.com"></script></head>
-<body class="bg-gray-100">
-    <div class="max-w-lg mx-auto mt-10 bg-white shadow-lg rounded-lg p-6">
-        <h2 class="text-2xl font-bold mb-6 text-gray-700">Edit Employee</h2>
+<html lang="en">
 
-        <form method="post" class="space-y-4">
-            <input type="text" name="name" value="<?= htmlspecialchars($employee['name']) ?>" required class="w-full border px-3 py-2 rounded">
-            <input type="email" name="email" value="<?= htmlspecialchars($employee['email']) ?>" required class="w-full border px-3 py-2 rounded">
-            <input type="password" name="password" placeholder="New Password (leave blank to keep)" class="w-full border px-3 py-2 rounded">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($pageTitle) ?></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
 
-            <!-- Department Dropdown -->
-            <select name="department_id" class="w-full border px-3 py-2 rounded">
-                <option value="">Select Department</option>
-                <?php while($d = $departments->fetch_assoc()): ?>
-                    <option value="<?= $d['id'] ?>" <?= ($employee['department_id'] == $d['id']) ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($d['name']) ?>
-                    </option>
-                <?php endwhile; ?>
-            </select>
+<body class="bg-gray-50">
 
-            <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Update Employee</button>
-        </form>
+    <!-- SIDEBAR -->
+    <?php include_once '../includes/sidebar.php'; ?>
 
-        <?php if(!empty($error)): ?>
-            <p class="text-red-600 mt-3"><?= $error ?></p>
-        <?php endif; ?>
+    <!-- Overlay for mobile -->
+    <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30 md:hidden"></div>
+    <!-- MAIN CONTENT -->
+    <div class="flex-1 flex flex-col md:ml-64">
+        <!-- HEADER -->
+        <?php include_once '../includes/header.php'; ?>
+        <!-- Page Content -->
+        <main class="pt-20 px-4 sm:px-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Edit Employee</h2>
+                    <p class="text-gray-600">Modify employee details and department information</p>
+                </div>
 
-        <br><a href="employees.php" class="text-blue-600 hover:underline">⬅ Back</a>
+                <a href="employees.php"
+                    class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 flex items-center w-full sm:w-auto justify-center transition">
+                    ← Back to Employees
+                </a>
+            </div>
+
+            <!-- Card -->
+            <div class="bg-white border border-gray-200 shadow rounded-xl p-6 sm:p-8 max-w-2xl mx-auto">
+                <?php if (!empty($error)): ?>
+                    <div class="mb-4 bg-red-50 text-red-700 px-4 py-2 rounded-lg border border-red-200">
+                        <?= $error ?>
+                    </div>
+                <?php endif; ?>
+
+                <form method="post" class="space-y-5">
+                    <!-- Name -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" name="name" value="<?= htmlspecialchars($employee['name']) ?>" required
+                            class="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3 py-2 rounded-lg text-gray-900">
+                    </div>
+
+                    <!-- Email -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <input type="email" name="email" value="<?= htmlspecialchars($employee['email']) ?>" required
+                            class="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3 py-2 rounded-lg text-gray-900">
+                    </div>
+
+                    <!-- Password -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                        <input type="password" name="password" placeholder="Leave blank to keep current"
+                            class="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3 py-2 rounded-lg text-gray-900">
+                    </div>
+
+                    <!-- Department -->
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                        <select name="department_id"
+                            class="w-full border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 px-3 py-2 rounded-lg text-gray-900">
+                            <option value="">Select Department</option>
+                            <?php while ($d = $departments->fetch_assoc()): ?>
+                                <option value="<?= $d['id'] ?>" <?= ($employee['department_id'] == $d['id']) ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($d['name']) ?>
+                                </option>
+                            <?php endwhile; ?>
+                        </select>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex justify-end space-x-3 pt-4">
+                        <a href="employees.php"
+                            class="bg-gray-100 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-200 transition">
+                            Cancel
+                        </a>
+                        <button type="submit"
+                            class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg transition">
+                            Update Employee
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
     </div>
+
 </body>
+
 </html>

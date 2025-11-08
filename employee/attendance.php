@@ -67,6 +67,10 @@ $stmt = $conn->prepare("SELECT * FROM attendance WHERE user_id=? ORDER BY date D
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $attendance = $stmt->get_result();
+
+$pageTitle = "My Attendance";
+
+
 ?>
 
 <!DOCTYPE html>
@@ -103,23 +107,7 @@ $attendance = $stmt->get_result();
   <div class="flex-1 flex flex-col min-h-screen md:ml-64">
 
     <!-- Navbar -->
-    <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
-      <div class="flex items-center space-x-3">
-        <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
-          <i class="fa-solid fa-bars text-xl"></i>
-        </button>
-        <h1 class="text-lg font-semibold text-gray-700">My Attendance</h1>
-      </div>
-      <div class="flex items-center space-x-3">
-        <span class="text-gray-700 flex items-center">
-          <i class="fas fa-user-circle text-blue-600 mr-1"></i>
-          <?= htmlspecialchars($emp['name']) ?>
-        </span>
-        <a href="../logout.php" class="text-red-600 hover:text-red-800">
-          <i class="fas fa-sign-out-alt text-lg"></i>
-        </a>
-      </div>
-    </header>
+    <?php include_once '../includes/header.php'; ?>
 
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8 transition-all duration-300">
 
@@ -129,30 +117,39 @@ $attendance = $stmt->get_result();
         </div>
       <?php endif; ?>
 
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center  mb-6 space-y-4 sm:space-y-0">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900">My Attendance</h2>
-          <p class="text-gray-600">Track your attendance and working hours</p>
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4 px-2 sm:px-0">
+        <!-- Left: Title -->
+        <div class="text-center sm:text-left w-full sm:w-auto">
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-900">My Attendance</h2>
+          <p class="text-gray-600 text-sm sm:text-base">Track your attendance and working hours</p>
         </div>
-        <div class="flex space-x-3">
-          <form method="POST" class="flex flex-col sm:flex-row gap-3">
-            <button type="submit" name="clock_in" class="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-all flex items-center space-x-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock w-4 h-4">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              <span>Clock In</span>
-            </button>
-            <button type="submit" name="clock_out" class="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-all flex items-center space-x-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock w-4 h-4">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              <span>Clock Out</span>
-            </button>
-          </form>
-        </div>
+
+        <!-- Right: Clock In/Out Buttons -->
+        <form method="POST" class="flex flex-col sm:flex-row w-full sm:w-auto gap-3 sm:justify-end">
+          <button type="submit" name="clock_in"
+            class="bg-green-600 text-white px-4 py-2 rounded-xl hover:bg-green-700 transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-clock">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>Clock In</span>
+          </button>
+
+          <button type="submit" name="clock_out"
+            class="bg-red-600 text-white px-4 py-2 rounded-xl hover:bg-red-700 transition-all flex items-center justify-center gap-2 w-full sm:w-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-clock">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span>Clock Out</span>
+          </button>
+        </form>
       </div>
+
 
       <!-- Buttons -->
       <!-- <div class="p-5 flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
