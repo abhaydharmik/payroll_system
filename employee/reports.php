@@ -47,6 +47,31 @@ $grossSalary = $latestSalary['basic'] ?? 0;
 $deductions = $latestSalary['deductions'] ?? 0;
 $netSalary = $latestSalary['total'] ?? 0;
 
+// Performance Data
+$performance = $conn->query("
+    SELECT punctuality, teamwork, productivity, quality_of_work, initiative, remarks, total_score, rating 
+    FROM performance 
+    WHERE user_id = $userId 
+    ORDER BY review_date DESC 
+    LIMIT 1
+")->fetch_assoc();
+
+if ($performance) {
+    $punctuality = $performance['punctuality'];
+    $teamwork = $performance['teamwork'];
+    $productivity = $performance['productivity'];
+    $qualityOfWork = $performance['quality_of_work'];
+    $initiative = $performance['initiative'];
+    $remarks = $performance['remarks'];
+    $totalScore = $performance['total_score'];
+    $rating = $performance['rating'];
+} else {
+    // No record fallback
+    $punctuality = $teamwork = $productivity = $qualityOfWork = $initiative = $totalScore = $rating = 0;
+    $remarks = "No review available";
+}
+
+
 $pageTitle = "My Reports";
 
 
@@ -193,15 +218,15 @@ $pageTitle = "My Reports";
                     </div>
                     <div class="space-y-3 mb-4">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Present Days:</span>
+                            <span class="text-gray-600">Present Days</span>
                             <span class="font-semibold text-green-600"><?= $daysPresent ?></span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Late Arrivals:</span>
+                            <span class="text-gray-600">Late Arrivals</span>
                             <span class="font-semibold text-orange-600">3</span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Early Departures:</span>
+                            <span class="text-gray-600">Early Departures</span>
                             <span class="font-semibold text-yellow-600">1</span>
                         </div>
                     </div>
@@ -230,15 +255,15 @@ $pageTitle = "My Reports";
                     </div>
                     <div class="space-y-3 mb-4">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Annual Leave:</span>
+                            <span class="text-gray-600">Annual Leave</span>
                             <span class="font-semibold text-blue-600"><?= $annualLeave ?>/20 used</span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Sick Leave:</span>
+                            <span class="text-gray-600">Sick Leave</span>
                             <span class="font-semibold text-blue-600"><?= $sickLeave ?>/10 used</span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Personal Leave:</span>
+                            <span class="text-gray-600">Personal Leave</span>
                             <span class="font-semibold text-blue-600"><?= $personalLeave ?>/5 used</span>
                         </div>
                     </div>
@@ -264,15 +289,15 @@ $pageTitle = "My Reports";
                     </div>
                     <div class="space-y-3 mb-4">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Gross Salary:</span>
+                            <span class="text-gray-600">Gross Salary</span>
                             <span class="font-semibold text-gray-800">₹<?= number_format($grossSalary, 2) ?></span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Deductions:</span>
+                            <span class="text-gray-600">Deductions</span>
                             <span class="font-semibold text-red-600">₹<?= number_format($deductions, 2) ?></span>
                         </div>
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Net Salary:</span>
+                            <span class="text-gray-600">Net Salary</span>
                             <span class="font-semibold text-green-600">₹<?= number_format($netSalary, 2) ?></span>
                         </div>
                     </div>
@@ -287,29 +312,59 @@ $pageTitle = "My Reports";
                 <!-- Performance Report -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <div class="flex items-start mb-4">
-                        <div class="p-3 bg-yellow-100 rounded-lg mr-4"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trending-up h-6 w-6 text-yellow-600">
+                        <div class="p-3 bg-yellow-100 rounded-lg mr-4">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
                                 <polyline points="16 7 22 7 22 13"></polyline>
-                            </svg></div>
+                            </svg>
+                        </div>
                         <div class="flex-1">
                             <h3 class="text-lg font-bold text-gray-800">Performance Report</h3>
-                            <p class="text-sm text-gray-500">Quarterly performance summary</p>
+                            <p class="text-sm text-gray-500">Latest Performance Evaluation</p>
                         </div>
                     </div>
+
                     <div class="space-y-3 mb-4">
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Overall Rating:</span>
-                            <span class="font-semibold text-orange-600">4.2/5.0</span>
+                            <span class="text-gray-600">Overall Rating</span>
+                            <span class="font-semibold text-orange-600"><?= $rating ?>/5</span>
                         </div>
+
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Goals Achieved:</span>
-                            <span class="font-semibold text-gray-800">6/10</span>
+                            <span class="text-gray-600">Total Score</span>
+                            <span class="font-semibold text-gray-800"><?= $totalScore ?>/25</span>
                         </div>
+
+                        <!-- <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Punctuality:</span>
+                            <span class="font-semibold text-gray-800"><?= $punctuality ?>/5</span>
+                        </div>
+
                         <div class="flex justify-between text-sm">
-                            <span class="text-gray-600">Projects Completed:</span>
-                            <span class="font-semibold text-gray-800">12</span>
+                            <span class="text-gray-600">Teamwork:</span>
+                            <span class="font-semibold text-gray-800"><?= $teamwork ?>/5</span>
+                        </div>
+
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Productivity:</span>
+                            <span class="font-semibold text-gray-800"><?= $productivity ?>/5</span>
+                        </div>
+
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Quality of Work:</span>
+                            <span class="font-semibold text-gray-800"><?= $qualityOfWork ?>/5</span>
+                        </div>
+
+                        <div class="flex justify-between text-sm">
+                            <span class="text-gray-600">Initiative:</span>
+                            <span class="font-semibold text-gray-800"><?= $initiative ?>/5</span>
+                        </div> -->
+
+                        <div class="text-sm text-gray-600">
+                            <span class="font-medium">Remarks:</span> <?= $remarks ?>
                         </div>
                     </div>
+
                     <form action="./performance_report.php" method="get" target="_blank">
                         <button type="submit"
                             class="w-full bg-yellow-600 hover:bg-yellow-700 text-white py-2.5 rounded-lg font-medium transition-colors duration-200">
@@ -317,6 +372,7 @@ $pageTitle = "My Reports";
                         </button>
                     </form>
                 </div>
+
             </div>
 
             <!-- Recent Downloads -->

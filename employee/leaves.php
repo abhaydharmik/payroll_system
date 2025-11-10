@@ -84,7 +84,7 @@ $pageTitle = "Leaves";
       <!-- Leave Application Form -->
       <div class="bg-white rounded-lg shadow p-6 mb-8">
         <h3 class="text-lg font-bold mb-4 flex items-center">
-          <i class="fa-solid fa-file-circle-plus text-blue-600 mr-2"></i>
+          <!-- <i class="fa-solid fa-file-circle-plus text-blue-600 mr-2"></i> -->
           Apply for Leave
         </h3>
 
@@ -131,7 +131,7 @@ $pageTitle = "Leaves";
 
           <!-- Submit Button -->
           <div class="w-full">
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2 rounded-lg transition-colors duration-200">
+            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200">
               <i class="fa-solid fa-paper-plane mr-2"></i>Submit Request
             </button>
           </div>
@@ -145,45 +145,54 @@ $pageTitle = "Leaves";
         <?php endif; ?>
       </div>
 
-      <!-- Leave Requests Table -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <h3 class="text-lg font-bold mb-4 flex items-center">
-          <i class="fa-solid fa-list-check text-blue-600 mr-2"></i>
-          My Leave Requests
-        </h3>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 mt-6">
+        <div class="p-6 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">My Leave Requests</h3>
+        </div>
 
-        <!-- Desktop Table View -->
+        <!-- Desktop View -->
         <div class="hidden md:block overflow-x-auto">
           <table class="w-full">
             <thead class="bg-gray-50 border-b">
               <tr>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Type</th>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Duration</th>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Date Range</th>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Reason</th>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
-                <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Range</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody class="divide-y">
+            <tbody class="bg-white divide-y divide-gray-200">
               <?php while ($row = $leaves->fetch_assoc()): ?>
                 <tr class="hover:bg-gray-50">
-                  <td class="px-4 py-3 text-sm"><?= htmlspecialchars($row['leave_type']); ?></td>
-                  <td class="px-4 py-3 text-sm"><?= htmlspecialchars($row['duration']); ?></td>
-                  <td class="px-4 py-3 text-sm"><?= date("M d, Y", strtotime($row['start_date'])) . ' to ' . date("M d, Y", strtotime($row['end_date'])); ?></td>
-                  <td class="px-4 py-3 text-sm max-w-xs truncate"><?= htmlspecialchars($row['reason']); ?></td>
-                  <td class="px-4 py-3">
+                  <td class="px-6 py-4 text-sm text-gray-900"><?= htmlspecialchars($row['leave_type']) ?></td>
+
+                  <td class="px-6 py-4 text-sm text-gray-900">
+                    <?= htmlspecialchars($row['duration']) ?>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    <?= date("M d, Y", strtotime($row['start_date'])) ?> - <?= date("M d, Y", strtotime($row['end_date'])) ?>
+                  </td>
+
+                  <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
+                    <?= htmlspecialchars($row['reason']) ?>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap">
                     <?php if ($row['status'] == 'Approved'): ?>
-                      <span class="px-2 py-1 rounded text-xs bg-green-100 text-green-700">Approved</span>
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
                     <?php elseif ($row['status'] == 'Rejected'): ?>
-                      <span class="px-2 py-1 rounded text-xs bg-red-100 text-red-700">Rejected</span>
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>
                     <?php else: ?>
-                      <span class="px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-700">Pending</span>
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
                     <?php endif; ?>
                   </td>
-                  <td class="px-4 py-3">
-                    <button class="text-blue-600 hover:text-blue-700">
-                      <i class="fa-regular fa-eye"></i>
+
+                  <td class="px-6 py-4 text-sm">
+                    <button class="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded" title="View">
+                      <i class="fa-solid fa-eye"></i>
                     </button>
                   </td>
                 </tr>
@@ -193,52 +202,49 @@ $pageTitle = "Leaves";
         </div>
 
         <!-- Mobile Card View -->
-        <div class="md:hidden space-y-4">
-          <?php
-          $leaves->data_seek(0);
-          while ($row = $leaves->fetch_assoc()):
-          ?>
-            <div class="border border-gray-200 rounded-lg p-4">
-              <div class="flex justify-between items-start mb-3">
+        <div class="md:hidden p-4 space-y-4">
+          <?php $leaves->data_seek(0);
+          while ($row = $leaves->fetch_assoc()): ?>
+            <div class="border border-gray-200 rounded-lg p-4 shadow-sm">
+              <div class="flex justify-between mb-2">
                 <div>
-                  <h4 class="font-semibold text-gray-800"><?= htmlspecialchars($row['leave_type']); ?></h4>
-                  <p class="text-sm text-gray-500"><?= htmlspecialchars($row['duration']); ?></p>
+                  <p class="font-semibold text-gray-800"><?= htmlspecialchars($row['leave_type']) ?></p>
+                  <p class="text-sm text-gray-500"><?= htmlspecialchars($row['duration']) ?></p>
                 </div>
+
                 <?php if ($row['status'] == 'Approved'): ?>
-                  <span class="px-2 py-1 rounded text-xs bg-green-100 text-green-700">Approved</span>
+                  <span class="px-2 py-1 text-xs bg-green-100 text-green-700 rounded">Approved</span>
                 <?php elseif ($row['status'] == 'Rejected'): ?>
-                  <span class="px-2 py-1 rounded text-xs bg-red-100 text-red-700">Rejected</span>
+                  <span class="px-2 py-1 text-xs bg-red-100 text-red-700 rounded">Rejected</span>
                 <?php else: ?>
-                  <span class="px-2 py-1 rounded text-xs bg-yellow-100 text-yellow-700">Pending</span>
+                  <span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-700 rounded">Pending</span>
                 <?php endif; ?>
               </div>
-              <div class="space-y-2 text-sm text-gray-600">
-                <div class="flex items-center">
-                  <i class="fa-regular fa-calendar w-5 text-gray-400"></i>
-                  <span><?= date("M d, Y", strtotime($row['start_date'])) . ' to ' . date("M d, Y", strtotime($row['end_date'])); ?></span>
-                </div>
-                <div class="flex items-start">
-                  <i class="fa-regular fa-comment w-5 text-gray-400 mt-0.5"></i>
-                  <span><?= htmlspecialchars($row['reason']); ?></span>
-                </div>
-              </div>
-              <div class="mt-3 pt-3 border-t">
+
+              <p class="text-sm text-gray-700">
+                <i class="fa-regular fa-calendar text-gray-400 mr-1"></i>
+                <?= date("M d, Y", strtotime($row['start_date'])) ?> - <?= date("M d, Y", strtotime($row['end_date'])) ?>
+              </p>
+
+              <p class="text-sm text-gray-600 mt-2">
+                <i class="fa-regular fa-comment text-gray-400 mr-1"></i>
+                <?= htmlspecialchars($row['reason']) ?>
+              </p>
+
+              <div class="mt-3 pt-3 border-t text-right">
                 <button class="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  <i class="fa-regular fa-eye mr-1"></i> View Details
+                  <i class="fa-solid fa-eye mr-1"></i> View
                 </button>
               </div>
             </div>
           <?php endwhile; ?>
         </div>
 
-        <!-- Empty State -->
-        <?php
-        $leaves->data_seek(0);
-        if ($leaves->num_rows == 0):
-        ?>
-          <p class="text-gray-500 text-sm text-center py-8">No leave requests found.</p>
+        <?php if ($leaves->num_rows == 0): ?>
+          <p class="text-gray-500 text-center py-6">No leave requests found.</p>
         <?php endif; ?>
       </div>
+
     </main>
   </div>
 

@@ -110,7 +110,7 @@ $pageTitle = "Leaves";
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applied</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppe  rcase tracking-wider">Actions</th> -->
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200 text-sm">
@@ -169,14 +169,14 @@ $pageTitle = "Leaves";
                         <?php endif; ?>
 
                         <!-- View button (always visible) -->
-                        <a href="view_leave.php?id=<?= $row['id'] ?>"
+                        <!-- <a href="view_leave.php?id=<?= $row['id'] ?>"
                           class="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded"
                           title="View Details">
                           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                             <circle cx="12" cy="12" r="3" />
                           </svg>
-                        </a>
+                        </a> -->
                       </div>
                     </td>
                   </tr>

@@ -6,35 +6,43 @@ $message = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = trim($_POST['name']);
     $email = trim($_POST['email']);
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $role = $_POST['role'];
+    $password = $_POST['password'];
+    $confirm_password = $_POST['confirm_password'];
+    $role = "employee"; // default role (change if needed)
 
-    // Check if email already exists
-    $check = $conn->prepare("SELECT id FROM users WHERE email=?");
-    $check->bind_param("s", $email);
-    $check->execute();
-    $check->store_result();
-
-    if ($check->num_rows > 0) {
-        $message = "<span class='text-red-600 font-medium'>Email already registered!</span>";
+    // ✅ Check Confirm Password
+    if ($password !== $confirm_password) {
+        $message = "<span class='text-red-600 font-medium'>Passwords do not match!</span>";
     } else {
-        // Insert new user
-        $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-        $stmt->bind_param("ssss", $name, $email, $password, $role);
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        if ($stmt->execute()) {
-            $user_id = $conn->insert_id;
+        // ✅ Check if email exists
+        $check = $conn->prepare("SELECT id FROM users WHERE email=?");
+        $check->bind_param("s", $email);
+        $check->execute();
+        $check->store_result();
 
-            // ✅ Log activity
-            $desc = "New user registered: $name ($role)";
-            $activity = $conn->prepare("INSERT INTO activities (user_id, description) VALUES (?, ?)");
-            $activity->bind_param("is", $user_id, $desc);
-            $activity->execute();
-
-            $message = "<span class='text-green-600 font-medium'>Registration successful! 
-                        <a href='index.php' class='text-blue-600 underline'>Login here</a></span>";
+        if ($check->num_rows > 0) {
+            $message = "<span class='text-red-600 font-medium'>Email already registered!</span>";
         } else {
-            $message = "<span class='text-red-600 font-medium'>Error: " . $stmt->error . "</span>";
+            // ✅ Insert user
+            $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
+            $stmt->bind_param("ssss", $name, $email, $hashedPassword, $role);
+
+            if ($stmt->execute()) {
+                $user_id = $conn->insert_id;
+
+                // ✅ Log activity
+                $desc = "New user registered: $name ($role)";
+                $activity = $conn->prepare("INSERT INTO activities (user_id, description) VALUES (?, ?)");
+                $activity->bind_param("is", $user_id, $desc);
+                $activity->execute();
+
+                $message = "<span class='text-green-600 font-medium'>Registration successful! 
+                            <a href='index.php' class='text-blue-600 underline'>Login here</a></span>";
+            } else {
+                $message = "<span class='text-red-600 font-medium'>Error: " . $stmt->error . "</span>";
+            }
         }
     }
 }
@@ -60,10 +68,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <input type="password" name="password" placeholder="Password" required
         class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
 
-      <select name="role" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-        <option value="employee">Employee</option>
-        <option value="admin">Admin</option>
-      </select>
+      <!-- ✅ Confirm Password Field -->
+      <input type="password" name="confirm_password" placeholder="Confirm Password" required
+        class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
 
       <button type="submit"
         class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">
@@ -81,3 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   </div>
 </body>
 </html>
+
+
+<!-- <select name="role" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        <option value="employee">Employee</option>
+        <option value="admin">Admin</option>
+      </select> -->

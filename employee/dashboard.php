@@ -178,8 +178,8 @@ $pageTitle = "Dashboard";
               if ($perfResult) {
                 $rating = round($perfResult['rating'], 1);
                 $reviewDate = date("d M Y", strtotime($perfResult['review_date']));
-                echo $rating . 
-                '
+                echo $rating .
+                  '
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="yellow" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star-icon text-yellow-300 lucide-star">
                 <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>
                 </svg>';
@@ -200,23 +200,93 @@ $pageTitle = "Dashboard";
       </div>
 
       <!-- Recent Attendance -->
-      <div class="bg-white rounded-xl shadow-sm p-6">
-        <h3 class="text-lg font-bold mb-4">Recent Attendance</h3>
-        <ul class="divide-y">
-          <?php while ($row = $recentData->fetch_assoc()): ?>
-            <li class="flex justify-between py-2">
-              <span><?= date("M d, Y", strtotime($row['date'])) ?></span>
-              <span
-                class="px-2 py-1 rounded text-xs <?= $row['status'] == 'Present' ? 'bg-green-100 text-green-700' : ($row['status'] == 'Leave' ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700') ?>">
-                <?= $row['status'] ?>
-              </span>
-            </li>
-          <?php endwhile; ?>
-          <?php if ($recentData->num_rows == 0): ?>
-            <p class="text-gray-500 text-sm">No attendance records found.</p>
-          <?php endif; ?>
-        </ul>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+
+          <div class="grid grid-cols-2 gap-4">
+
+            <!-- Mark Attendance -->
+            <a href="attendance.php" class="p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-left block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M8 2v4" />
+                <path d="M16 2v4" />
+                <rect width="18" height="18" x="3" y="4" rx="2" />
+                <path d="M3 10h18" />
+              </svg>
+              <p class="font-medium text-gray-900">Mark Attendance</p>
+              <p class="text-sm text-gray-600">Clock In / Out</p>
+            </a>
+
+            <!-- Apply Leave -->
+            <a href="leaves.php" class="p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-left block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-green-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                <path d="M10 9H8" />
+                <path d="M16 13H8" />
+                <path d="M16 17H8" />
+              </svg>
+              <p class="font-medium text-gray-900">Apply Leave</p>
+              <p class="text-sm text-gray-600">Request Time Off</p>
+            </a>
+
+            <!-- Salary Slip -->
+            <a href="salary.php" class="p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-left block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-purple-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <line x1="12" x2="12" y1="2" y2="22" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+              <p class="font-medium text-gray-900">Salary Slip</p>
+              <p class="text-sm text-gray-600">Download Payslip</p>
+            </a>
+
+            <!-- Update Profile -->
+            <a href="profile.php" class="p-4 border border-gray-200 rounded-xl hover:bg-gray-50 transition-all text-left block">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-yellow-600 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
+              <p class="font-medium text-gray-900">Update Profile</p>
+              <p class="text-sm text-gray-600">Edit Personal Details</p>
+            </a>
+
+          </div>
+        </div>
+
+        <!-- Recent Attendance -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Attendance</h3>
+
+          <div class="space-y-3">
+            <?php while ($row = $recentData->fetch_assoc()): ?>
+              <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <p class="font-medium text-gray-900"><?= date("M d, Y", strtotime($row['date'])) ?></p>
+                  <p class="text-sm text-gray-600">
+                    <?= (!empty($row['clock_in']) && !empty($row['clock_out']))
+                      ? date("h:i A", strtotime($row['clock_in'])) . " - " . date("h:i A", strtotime($row['clock_out']))
+                      : "No time recorded" ?>
+                  </p>
+                </div>
+
+                <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium
+            <?= $row['status'] == 'Present' ? 'bg-green-100 text-green-800' : ($row['status'] == 'Leave' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') ?>">
+                  <?= $row['status'] ?>
+                </span>
+              </div>
+            <?php endwhile; ?>
+
+            <?php if ($recentData->num_rows == 0): ?>
+              <p class="text-gray-500 text-sm text-center py-4">No attendance records found.</p>
+            <?php endif; ?>
+          </div>
+        </div>
+
       </div>
+
     </main>
   </div>
 

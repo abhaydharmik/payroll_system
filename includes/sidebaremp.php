@@ -10,7 +10,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <div class="p-2 md:p-4 border-b">
         <h1 class="text-xl font-bold flex items-center text-gray-800">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM3 21h8v-6H3v6zM13 3v6h8V3h-8z"/>
+                <path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM3 21h8v-6H3v6zM13 3v6h8V3h-8z" />
             </svg>
             Employee Panel
         </h1>
@@ -22,27 +22,27 @@ $currentPage = basename($_SERVER['PHP_SELF']);
         $menuItems = [
             'dashboard.php' => [
                 'title' => 'Dashboard',
-                'icon'  => '<path d="M3 13h8V3H3v10zM13 21h8V11h-8v10zM3 21h8v-6H3v6zM13 3v6h8V3h-8z"/>'
+                'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-5 h-5"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>'
             ],
             'profile.php' => [
                 'title' => 'Profile',
-                'icon'  => '<circle cx="12" cy="7" r="4"/><path d="M6 21v-2a6 6 0 0112 0v2"/>'
+                'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user w-5 h-5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
             ],
             'attendance.php' => [
                 'title' => 'My Attendance',
-                'icon'  => '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>'
+                'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-5 h-5"><path d="M8 2v4"></path><path d="M16 2v4"></path><rect width="18" height="18" x="3" y="4" rx="2"></rect><path d="M3 10h18"></path></svg>'
             ],
             'leaves.php' => [
                 'title' => 'My Leaves',
-                'icon'  => '<path d="M19 21H5a2 2 0 01-2-2V7a2 2 0 012-2h4l2-3h6a2 2 0 012 2v14a2 2 0 01-2 2z"/>'
+                'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text w-5 h-5"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>'
             ],
             'salary.php' => [
                 'title' => 'Salary Slips',
-                'icon'  => '<circle cx="12" cy="12" r="10"/><path d="M12 8c-1.1 0-2 .9-2 2 0 1.5 2 2 2 2s2 .5 2 2c0 1.1-.9 2-2 2m0-8V4m0 16v-4"/>'
+                'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dollar-sign w-5 h-5"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>'
             ],
             'reports.php' => [
                 'title' => 'My Reports',
-                'icon'  => '<path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>'
+                'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-plus-icon lucide-clipboard-plus"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 14h6"/><path d="M12 17v-6"/></svg>'
             ],
         ];
 
@@ -52,11 +52,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 ? 'bg-blue-50 text-blue-600 border border-blue-200'
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900';
 
-            echo '<a href="'.$file.'" class="block py-2 px-3 rounded-lg flex items-center '.$activeClass.'">
+            echo '<a href="' . $file . '" class="block py-2 px-3 rounded-lg flex items-center ' . $activeClass . '">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        '.$item['icon'].'
+                        ' . $item['icon'] . '
                     </svg>
-                    '.$item['title'].'
+                    ' . $item['title'] . '
                   </a>';
         endforeach;
         ?>
@@ -65,8 +65,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <!-- Footer -->
     <div class="p-4 border-t mt-4">
         <p class="text-sm text-gray-500">
-            &copy; <?= date("Y"); ?> 
-            <span class="font-semibold text-gray-800">Employee System</span>
+            &copy; <?= date("Y"); ?>
+            <span class="font-semibold text-gray-800">Payroll System</span>
         </p>
     </div>
 </aside>

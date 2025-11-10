@@ -9,34 +9,34 @@ $emp = $_SESSION['user'];
 $departments = $conn->query("SELECT * FROM departments ORDER BY name ASC");
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name  = $_POST['name'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-    $department_id = !empty($_POST['department_id']) ? $_POST['department_id'] : null;
+  $name  = $_POST['name'];
+  $email = $_POST['email'];
+  $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+  $department_id = !empty($_POST['department_id']) ? $_POST['department_id'] : null;
 
-    // Insert into users table
-    $stmt = $conn->prepare("INSERT INTO users (name, email, password, role, department_id) VALUES (?, ?, ?, 'employee', ?)");
-    $stmt->bind_param("sssi", $name, $email, $password, $department_id);
+  // Insert into users table
+  $stmt = $conn->prepare("INSERT INTO users (name, email, password, role, department_id) VALUES (?, ?, ?, 'employee', ?)");
+  $stmt->bind_param("sssi", $name, $email, $password, $department_id);
 
-    if ($stmt->execute()) {
-        // ✅ Get the ID of the newly added employee
-        $new_user_id = $stmt->insert_id;
+  if ($stmt->execute()) {
+    // ✅ Get the ID of the newly added employee
+    $new_user_id = $stmt->insert_id;
 
-        // ✅ Log activity (by the admin who added)
-        $addedBy = $_SESSION['user']['name'];
-        $addedById = $_SESSION['user']['id'];
-        $activity = "Added new employee: $name";
+    // ✅ Log activity (by the admin who added)
+    $addedBy = $_SESSION['user']['name'];
+    $addedById = $_SESSION['user']['id'];
+    $activity = "Added new employee: $name";
 
-        $activity_sql = "INSERT INTO activities (user_id, description, user_name, created_at) VALUES (?, ?, ?, NOW())";
-        $activity_stmt = $conn->prepare($activity_sql);
-        $activity_stmt->bind_param("iss", $addedById, $activity, $addedBy);
-        $activity_stmt->execute();
+    $activity_sql = "INSERT INTO activities (user_id, description, user_name, created_at) VALUES (?, ?, ?, NOW())";
+    $activity_stmt = $conn->prepare($activity_sql);
+    $activity_stmt->bind_param("iss", $addedById, $activity, $addedBy);
+    $activity_stmt->execute();
 
-        header("Location: employees.php");
-        exit;
-    } else {
-        $error = "Error: " . $stmt->error;
-    }
+    header("Location: employees.php");
+    exit;
+  } else {
+    $error = "Error: " . $stmt->error;
+  }
 }
 
 $pageTitle = "Add Employee";
@@ -72,9 +72,19 @@ $pageTitle = "Add Employee";
     <!-- HEADER -->
     <?php include_once '../includes/header.php'; ?>
 
+
+
     <!-- PAGE CONTENT -->
     <main class="flex-1 pt-20 pb-10 px-4 sm:px-6 lg:px-8">
-      <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 mb-4 px-2 sm:px-0">
+        <!-- Left Section: Title -->
+        <div class="text-center sm:text-left w-full sm:w-auto">
+          <h2 class="text-xl sm:text-2xl font-bold text-gray-900">Employees</h2>
+          <p class="text-gray-600 text-sm sm:text-base">Manage your workforce</p>
+        </div>
+      </div>
+      <?php include '../includes/breadcrumb.php'; ?>
+      <div class="mx-auto bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
 
         <div class="mb-6 text-center sm:text-left">
           <h2 class="text-2xl font-bold text-gray-900">Add Employee</h2>
@@ -136,4 +146,5 @@ $pageTitle = "Add Employee";
 
   <script src="../assets/js/script.js"></script>
 </body>
+
 </html>

@@ -77,8 +77,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </a>
             </div>
 
+                  <?php include '../includes/breadcrumb.php'; ?>
+
+
             <!-- Card -->
-            <div class="bg-white border border-gray-200 shadow rounded-xl p-6 sm:p-8 max-w-2xl mx-auto">
+            <div class="bg-white border border-gray-200 shadow rounded-xl p-6 sm:p-8 mx-auto">
                 <?php if (!empty($error)): ?>
                     <div class="mb-4 bg-red-50 text-red-700 px-4 py-2 rounded-lg border border-red-200">
                         <?= $error ?>

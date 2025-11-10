@@ -37,6 +37,7 @@ $pageTitle = 'Performance Evaluation';
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,6 +45,7 @@ $pageTitle = 'Performance Evaluation';
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
+
 <body class="bg-gray-100 text-gray-800">
 
   <!-- Sidebar -->
@@ -57,7 +59,9 @@ $pageTitle = 'Performance Evaluation';
 
     <!-- Page Content -->
     <main class="flex-1 pt-24 px-4 md:px-10 pb-8">
-      <div class="max-w-3xl mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
+      <?php include '../includes/breadcrumb.php'; ?>
+
+      <div class="mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">
             <i class="fa-solid fa-chart-line text-blue-600"></i>
@@ -120,4 +124,5 @@ $pageTitle = 'Performance Evaluation';
   </div>
 
 </body>
+
 </html>

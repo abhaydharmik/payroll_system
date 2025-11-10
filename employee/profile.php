@@ -215,7 +215,7 @@ $pageTitle = "My Profile";
               <input type="password" name="new_password" placeholder="New Password" class="border rounded p-2 text-sm sm:text-base">
               <input type="password" name="confirm_password" placeholder="Confirm Password" class="border rounded p-2 text-sm sm:text-base">
               <div class="sm:col-span-3">
-                <button type="submit" name="change_password" class="bg-green-600 text-white px-4 py-2 rounded mt-3 hover:bg-green-700 text-sm sm:text-base">Update Password</button>
+                <button type="submit" name="change_password" class="bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700 text-sm sm:text-base">Update Password</button>
               </div>
             </form>
           </div>

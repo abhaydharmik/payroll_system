@@ -164,57 +164,123 @@ $pageTitle = "My Attendance";
         </form>
       </div> -->
 
-      <!-- Today's Status -->
-      <div class="bg-white rounded-lg shadow p-6 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
-        <div class="p-4 border rounded-lg">
-          <p class="text-gray-500 mb-1">Clock In</p>
-          <p class="text-xl font-semibold text-green-600"><?= $todayRecord['clock_in'] ?? '--:--' ?></p>
-        </div>
-        <div class="p-4 border rounded-lg">
-          <p class="text-gray-500 mb-1">Hours Worked</p>
-          <p class="text-xl font-semibold text-blue-600"><?= $todayRecord['hours_worked'] ?? '--:--' ?></p>
-        </div>
-        <div class="p-4 border rounded-lg">
-          <p class="text-gray-500 mb-1">Status</p>
-          <p class="text-xl font-semibold <?= ($todayRecord['status'] == 'Present') ? 'text-green-600' : 'text-gray-500' ?>">
-            <?= $todayRecord['status'] ?? 'Not Marked' ?>
-          </p>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Today's Status</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <!-- Clock In -->
+          <div class="text-center p-4 bg-green-50 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <p class="text-sm text-gray-600">Clock In</p>
+            <p class="text-xl font-bold text-gray-900">
+              <?= $todayRecord['clock_in'] ?? '--:--' ?>
+            </p>
+          </div>
+
+          <!-- Hours Worked -->
+          <div class="text-center p-4 bg-blue-50 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M3 3v18h18" />
+              <path d="M18 17V9" />
+              <path d="M13 17V5" />
+              <path d="M8 17v-3" />
+            </svg>
+            <p class="text-sm text-gray-600">Hours Worked</p>
+            <p class="text-xl font-bold text-gray-900">
+              <?= $todayRecord['hours_worked'] ?? '--:--' ?>
+            </p>
+          </div>
+
+          <!-- Status -->
+          <div class="text-center p-4 bg-purple-50 rounded-xl">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-purple-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path d="M8 2v4" />
+              <path d="M16 2v4" />
+              <rect width="18" height="18" x="3" y="4" rx="2" />
+              <path d="M3 10h18" />
+            </svg>
+            <p class="text-sm text-gray-600">Status</p>
+            <p class="text-xl font-bold 
+        <?= ($todayRecord['status'] ?? '') == 'Present' ? 'text-green-600' : 'text-gray-500' ?>">
+              <?= $todayRecord['status'] ?? 'Not Marked' ?>
+            </p>
+          </div>
+
         </div>
       </div>
 
       <!-- Attendance History -->
-      <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
-          <h3 class="text-base sm:text-lg font-semibold text-gray-700">Attendance History</h3>
-          <a href="./attendance_report.php" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm w-full sm:w-auto text-center">
-            <i class="fa fa-file-pdf mr-1"></i> Export PDF
-          </a>
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+            <h3 class="text-lg font-semibold text-gray-900">Attendance History</h3>
+
+            <div class="flex space-x-2">
+              <form method="get">
+                <select name="filter" class="px-3 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                  <option value="">This Month</option>
+                  <option value="week">This Week</option>
+                  <option value="last_month">Last Month</option>
+                </select>
+              </form>
+
+              <a href="./attendance_report.php" target="_blank"
+                class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
+                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                  class="lucide lucide-download w-4 h-4">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span>Export</span>
+              </a>
+            </div>
+          </div>
         </div>
+
         <div class="overflow-x-auto">
-          <table class="w-full border border-gray-200 rounded-lg text-sm">
-            <thead class="bg-gray-100 text-gray-700">
+          <table class="w-full">
+            <thead class="bg-gray-50">
               <tr>
-                <th class="px-4 py-2 text-left">Date</th>
-                <th class="px-4 py-2 text-left">Clock In</th>
-                <th class="px-4 py-2 text-left">Clock Out</th>
-                <th class="px-4 py-2 text-left">Hours Worked</th>
-                <th class="px-4 py-2 text-left">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clock In</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Clock Out</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
               </tr>
             </thead>
-            <tbody>
+
+            <tbody class="bg-white divide-y divide-gray-200">
               <?php while ($row = $attendance->fetch_assoc()): ?>
-                <tr class="border-t hover:bg-gray-50">
-                  <td class="px-4 py-2"><?= htmlspecialchars($row['date']) ?></td>
-                  <td class="px-4 py-2"><?= $row['clock_in'] ?: '--:--' ?></td>
-                  <td class="px-4 py-2"><?= $row['clock_out'] ?: '--:--' ?></td>
-                  <td class="px-4 py-2"><?= $row['hours_worked'] ?: '--' ?></td>
-                  <td class="px-4 py-2">
+                <tr class="hover:bg-gray-50">
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <?= date("M d, Y", strtotime($row['date'])) ?>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <?= $row['clock_in'] ?: '--:--' ?>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <?= $row['clock_out'] ?: '--:--' ?>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    <?= $row['hours_worked'] ?: '--' ?>
+                  </td>
+
+                  <td class="px-6 py-4 whitespace-nowrap">
                     <?php if ($row['status'] == "Present"): ?>
-                      <span class="text-green-600 font-semibold">Present</span>
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Present</span>
                     <?php elseif ($row['status'] == "Leave"): ?>
-                      <span class="text-yellow-600 font-semibold">Leave</span>
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Leave</span>
                     <?php else: ?>
-                      <span class="text-red-600 font-semibold">Absent</span>
+                      <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Absent</span>
                     <?php endif; ?>
                   </td>
                 </tr>
@@ -223,6 +289,7 @@ $pageTitle = "My Attendance";
           </table>
         </div>
       </div>
+
 
     </main>
   </div>

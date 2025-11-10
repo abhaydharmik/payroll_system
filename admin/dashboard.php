@@ -26,7 +26,7 @@ $activities = $conn->query("
     FROM activities a
     LEFT JOIN users u ON a.user_id = u.id
     ORDER BY a.created_at DESC
-    LIMIT 10
+    LIMIT 5
 ");
 
 $departments = $conn->query("

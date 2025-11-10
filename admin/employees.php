@@ -60,6 +60,8 @@ $pageTitle = "Employees";
           <p class="text-gray-600 text-sm sm:text-base">Manage your workforce</p>
         </div>
 
+
+
         <!-- Right Section: Button -->
         <div class="w-full sm:w-auto">
           <a href="add_employee.php"
@@ -74,6 +76,8 @@ $pageTitle = "Employees";
           </a>
         </div>
       </div>
+      
+      <?php include '../includes/breadcrumb.php'; ?>
 
       <div class="">
 
