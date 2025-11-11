@@ -36,7 +36,7 @@ $result = $stmt->get_result();
 <body class="bg-gray-50 text-gray-800 p-4 md:p-10 font-sans">
 
   <!-- Report Container -->
-  <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-lg p-6 md:p-10 border border-gray-100">
+  <div class="max-w-5xl mx-auto bg-white rounded-2xl shadow-sm p-6 md:p-10 border border-gray-100">
 
     <!-- Header / Company Info -->
     <div class="flex flex-col md:flex-row items-center justify-between border-b border-gray-200 pb-4 mb-6">

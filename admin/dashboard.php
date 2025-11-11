@@ -26,7 +26,7 @@ $activities = $conn->query("
     FROM activities a
     LEFT JOIN users u ON a.user_id = u.id
     ORDER BY a.created_at DESC
-    LIMIT 5
+    LIMIT 10
 ");
 
 $departments = $conn->query("
@@ -64,6 +64,25 @@ $pageTitle = "Dashboard"
         transform: translateX(-100%);
       }
     }
+
+    /* Smooth hover transition globally */
+    .smooth {
+      transition: all 0.25s ease;
+    }
+
+    /* Premium scrollbar */
+    .scroll-area::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb {
+      background: #d1d5db;
+      border-radius: 9999px;
+    }
+
+    .scroll-area::-webkit-scrollbar-thumb:hover {
+      background: #9ca3af;
+    }
   </style>
 </head>
 
@@ -71,35 +90,14 @@ $pageTitle = "Dashboard"
 
   <!-- SIDEBAR -->
   <?php include_once '../includes/sidebar.php'; ?>
-  
+
   <!-- Overlay for Mobile -->
   <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30 md:hidden"></div>
-  
+
   <!-- MAIN CONTENT -->
   <div class="flex-1 flex flex-col min-h-screen md:ml-64">
     <!-- NAVBAR -->
     <?php include_once '../includes/header.php'; ?>
-    <!-- <header class="fixed top-0 left-0 right-0 md:left-64 bg-white shadow flex justify-between items-center px-4 py-3 z-40">
-      <div class="flex items-center space-x-3">
-        <button id="sidebarToggle" class="md:hidden text-gray-700 focus:outline-none">
-          <i class="fa-solid fa-bars text-xl"></i>
-        </button>
-        <h1 class="text-lg font-semibold text-gray-700">Admin Dashboard</h1>
-      </div>
-      <div class="flex items-center space-x-3">
-        <span class="text-gray-700 flex items-center">
-          <i class="fas fa-user-circle text-blue-600 mr-1"></i>
-          <?php echo htmlspecialchars($emp['name']); ?>
-        </span>
-        <a href="../logout.php" class="text-red-600 hover:text-red-800">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-log-out w-5 h-5">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" x2="9" y1="12" y2="12"></line>
-          </svg>
-        </a>
-      </div>
-    </header> -->
 
     <!-- Page Content -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
@@ -167,44 +165,65 @@ $pageTitle = "Dashboard"
       </div>
 
       <!-- Bottom Section -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
         <!-- Recent Activities -->
-        <div class="bg-white rounded-xl shadow p-6">
-          <h2 class="text-lg font-semibold mb-4 text-gray-800">Recent Activities</h2>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-[1.6rem]">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-semibold text-gray-900">Recent Activities</h2>
+            <span class="text-[11px] px-2 py-1 rounded bg-blue-50 text-blue-600">Top <?= $activities->num_rows ?> records</span>
+          </div>
 
           <?php if ($activities->num_rows > 0): ?>
-            <ul>
+            <div class="space-y-3 max-h-[23rem] overflow-y-auto scroll-area">
               <?php while ($a = $activities->fetch_assoc()): ?>
-                <li class="py-3 mb-2">
-                  <p class="text-gray-800 font-semibold"><?= htmlspecialchars($a['description']) ?></p>
-                  <p class="text-sm text-gray-500">
+                <div class="p-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors">
+                  <p class="text-sm font-medium text-gray-800">
+                    <?= htmlspecialchars($a['description']) ?>
+                  </p>
+                  <p class="text-xs text-gray-500 flex items-center mt-1">
+                    <i class="fa-regular fa-clock mr-1"></i>
                     <?= date('d M Y, h:i A', strtotime($a['created_at'])) ?>
                   </p>
-                </li>
+                </div>
               <?php endwhile; ?>
-            </ul>
+            </div>
           <?php else: ?>
-            <p class="text-gray-500">No recent activities yet.</p>
+            <div class="text-center py-6 text-gray-500">
+              <i class="fa-regular fa-face-meh text-2xl mb-1"></i>
+              <p class="text-sm">No recent activities found.</p>
+            </div>
           <?php endif; ?>
         </div>
 
-
         <!-- Department Overview -->
-        <div class="bg-white rounded-lg shadow p-6">
-          <h3 class="text-lg font-semibold mb-4">Department Overview</h3>
-          <ul>
-            <?php while ($d = $departments->fetch_assoc()): ?>
-              <li class="flex justify-between py-2 mb-2 ">
-                <div>
-                  <p class="font-medium "><?= htmlspecialchars($d['name']) ?></p>
-                  <p class="text-sm text-gray-500 text-sm"><?= $d['employees'] ?> employees</p>
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-[1.6rem]">
+          <h3 class="text-base font-semibold text-gray-900 mb-3">Department Overview</h3>
+
+          <?php if ($departments->num_rows > 0): ?>
+            <div class="space-y-3">
+              <?php while ($d = $departments->fetch_assoc()): ?>
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-all">
+                  <div>
+                    <p class="text-sm font-semibold text-gray-800"><?= htmlspecialchars($d['name']) ?></p>
+                    <p class="text-xs text-gray-500"><?= $d['employees'] ?> employees</p>
+                  </div>
+                  <p class="text-sm font-bold text-green-600">
+                    ₹<?= number_format($d['payroll'] / 1000) ?>K
+                  </p>
                 </div>
-                <p class="font-semibold text-gray-700">₹<?= number_format($d['payroll'] / 1000) ?>K</p>
-              </li>
-            <?php endwhile; ?>
-          </ul>
+              <?php endwhile; ?>
+            </div>
+          <?php else: ?>
+            <div class="text-center py-6 text-gray-500">
+              <i class="fa-solid fa-building text-2xl mb-1"></i>
+              <p class="text-sm">No departments found.</p>
+            </div>
+          <?php endif; ?>
         </div>
+
       </div>
+
     </main>
   </div>
 

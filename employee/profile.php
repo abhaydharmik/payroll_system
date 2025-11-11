@@ -140,88 +140,105 @@ $pageTitle = "My Profile";
           <h2 class="text-2xl font-bold text-gray-900">My Profile</h2>
           <p class="text-gray-600">Manage your personal information and settings</p>
         </div>
-        <!-- <button class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all flex items-center space-x-2" fdprocessedid="7hhzq">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-credit-card w-4 h-4">
-            <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-            <line x1="2" x2="22" y1="10" y2="10"></line>
-          </svg><span>Edit Profile</span></button> -->
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 mt-4 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-6">
 
-        <!-- Left Section -->
+        <!-- LEFT COLUMN -->
         <div class="space-y-6">
-          <div class="bg-white shadow rounded-lg p-6 text-center">
-            <div class="w-20 sm:w-24 h-20 sm:h-24 mx-auto rounded-full bg-blue-100 flex items-center justify-center text-xl sm:text-2xl font-semibold text-blue-600">
+
+          <!-- Profile Card -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
+            <div class="w-24 h-24 mx-auto rounded-full bg-blue-100 flex items-center justify-center text-3xl font-semibold text-blue-600">
               <?= strtoupper(substr($user['name'], 0, 1)) ?>
             </div>
-            <h3 class="mt-4 text-lg sm:text-xl font-semibold text-gray-800 break-words"><?= htmlspecialchars($user['name']) ?></h3>
-            <p class="text-gray-500 text-sm sm:text-base"><?= htmlspecialchars($user['designation_name'] ?? 'Employee') ?></p>
-            <p class="text-xs sm:text-sm text-gray-400"><?= htmlspecialchars($user['department_name'] ?? 'Department') ?></p>
-            <div class="mt-4 border-t pt-4 text-xs sm:text-sm text-gray-600 flex flex-col sm:flex-row justify-around gap-2 sm:gap-0">
-              <p><strong><?= rand(1, 5) ?></strong> Years</p>
-              <p><strong><?= rand(80, 100) ?>%</strong> Attendance</p>
+
+            <h3 class="mt-4 text-xl font-semibold text-gray-800"><?= htmlspecialchars($user['name']) ?></h3>
+            <p class="text-gray-500"><?= htmlspecialchars($user['designation_name'] ?? 'Employee') ?></p>
+            <p class="text-xs text-gray-400"><?= htmlspecialchars($user['department_name'] ?? 'Department') ?></p>
+
+            <div class="mt-4 flex justify-center divide-x divide-gray-300 text-sm text-gray-600">
+              <p class="px-3"><strong><?= rand(1, 5) ?></strong> Years</p>
+              <p class="px-3"><strong><?= rand(80, 100) ?>%</strong> Attendance</p>
             </div>
           </div>
 
-          <div class="bg-white shadow rounded-lg p-6">
-            <h4 class="font-semibold mb-4 text-gray-700 text-base sm:text-lg">Quick Stats</h4>
-            <ul class="text-gray-600 space-y-2 text-sm sm:text-base">
+          <!-- Stats -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h4 class="font-semibold text-gray-800 mb-4">Quick Stats</h4>
+            <ul class="text-gray-600 space-y-2 text-sm">
               <li><strong>Leave Balance:</strong> <?= $leaveBalance ?> days</li>
               <li><strong>Days Present:</strong> <?= $presentDays ?></li>
               <li><strong>Projects:</strong> <?= rand(1, 5) ?> Active</li>
             </ul>
           </div>
+
         </div>
 
-        <!-- Right Section -->
+        <!-- RIGHT COLUMN -->
         <div class="lg:col-span-2 space-y-6">
 
-          <!-- Personal Info -->
-          <div class="bg-white shadow rounded-lg p-6">
-            <h4 class="font-semibold mb-4 text-gray-700 text-base sm:text-lg">Personal Information</h4>
-            <form method="POST" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Personal Information -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h4 class="font-semibold text-gray-800 mb-4">Personal Information</h4>
+
+            <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
               <div>
-                <label class="text-xs sm:text-sm text-gray-600">Full Name</label>
-                <input type="text" name="name" value="<?= htmlspecialchars($user['name']) ?>" class="w-full border rounded p-2 mt-1 text-sm sm:text-base">
+                <label class="text-sm text-gray-600">Full Name</label>
+                <input type="text" name="name" value="<?= htmlspecialchars($user['name']) ?>" class="w-full mt-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
               </div>
+
               <div>
-                <label class="text-xs sm:text-sm text-gray-600">Email</label>
-                <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" class="w-full border rounded p-2 mt-1 text-sm sm:text-base">
+                <label class="text-sm text-gray-600">Email</label>
+                <input type="email" name="email" value="<?= htmlspecialchars($user['email']) ?>" class="w-full mt-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
               </div>
+
               <div>
-                <label class="text-xs sm:text-sm text-gray-600">Date of Birth</label>
-                <input type="date" name="dob" value="<?= htmlspecialchars($user['dob']) ?>" class="w-full border rounded p-2 mt-1 text-sm sm:text-base">
+                <label class="text-sm text-gray-600">Date of Birth</label>
+                <input type="date" name="dob" value="<?= htmlspecialchars($user['dob']) ?>" class="w-full mt-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
               </div>
+
               <div>
-                <label class="text-xs sm:text-sm text-gray-600">Phone</label>
-                <input type="text" name="phone" value="<?= htmlspecialchars($user['phone']) ?>" class="w-full border rounded p-2 mt-1 text-sm sm:text-base">
+                <label class="text-sm text-gray-600">Phone</label>
+                <input type="text" name="phone" value="<?= htmlspecialchars($user['phone']) ?>" class="w-full mt-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
               </div>
-              <div class="sm:col-span-2">
-                <label class="text-xs sm:text-sm text-gray-600">Address</label>
-                <textarea name="address" class="w-full border rounded p-2 mt-1 text-sm sm:text-base"><?= htmlspecialchars($user['address']) ?></textarea>
+
+              <div class="md:col-span-2">
+                <label class="text-sm text-gray-600">Address</label>
+                <textarea name="address" class="w-full mt-1 border rounded-lg p-2 focus:ring-2 focus:ring-blue-500"><?= htmlspecialchars($user['address']) ?></textarea>
               </div>
-              <div class="sm:col-span-2">
-                <button type="submit" name="update_profile" class="bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700 text-sm sm:text-base">Update Profile</button>
+
+              <div class="md:col-span-2">
+                <button type="submit" name="update_profile" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                  Update Profile
+                </button>
               </div>
+
             </form>
           </div>
 
           <!-- Change Password -->
-          <div class="bg-white shadow rounded-lg p-6">
-            <h4 class="font-semibold mb-4 text-gray-700 text-base sm:text-lg">Change Password</h4>
-            <form method="POST" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <input type="password" name="current_password" placeholder="Current Password" class="border rounded p-2 text-sm sm:text-base">
-              <input type="password" name="new_password" placeholder="New Password" class="border rounded p-2 text-sm sm:text-base">
-              <input type="password" name="confirm_password" placeholder="Confirm Password" class="border rounded p-2 text-sm sm:text-base">
-              <div class="sm:col-span-3">
-                <button type="submit" name="change_password" class="bg-blue-600 text-white px-4 py-2 rounded mt-3 hover:bg-blue-700 text-sm sm:text-base">Update Password</button>
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h4 class="font-semibold text-gray-800 mb-4">Change Password</h4>
+
+            <form method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <input type="password" name="current_password" placeholder="Current Password" class="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+              <input type="password" name="new_password" placeholder="New Password" class="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+              <input type="password" name="confirm_password" placeholder="Confirm Password" class="border rounded-lg p-2 focus:ring-2 focus:ring-blue-500">
+
+              <div class="md:col-span-3">
+                <button type="submit" name="change_password" class="w-full md:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+                  Update Password
+                </button>
               </div>
             </form>
           </div>
 
         </div>
+
       </div>
+
     </main>
   </div>
 

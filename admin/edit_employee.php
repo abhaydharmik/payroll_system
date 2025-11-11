@@ -50,6 +50,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        #sidebar {
+            transition: transform 0.3s ease-in-out;
+        }
+
+        @media (max-width: 767px) {
+            #sidebar.mobile-hidden {
+                transform: translateX(-100%);
+            }
+        }
+    </style>
 </head>
 
 <body class="bg-gray-50">
@@ -71,13 +82,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <p class="text-gray-600">Modify employee details and department information</p>
                 </div>
 
-                <a href="employees.php"
+                <!-- <a href="employees.php"
                     class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 flex items-center w-full sm:w-auto justify-center transition">
-                    ← Back to Employees
-                </a>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg> Back to Employees
+                </a> -->
             </div>
 
-                  <?php include '../includes/breadcrumb.php'; ?>
+            <?php include '../includes/breadcrumb.php'; ?>
 
 
             <!-- Card -->
@@ -139,6 +152,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
         </main>
     </div>
+
+    <!-- JS for Sidebar Toggle -->
+    <script src="../assets/js/script.js"></script>
 
 </body>
 

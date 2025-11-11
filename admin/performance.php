@@ -44,6 +44,17 @@ $pageTitle = 'Performance Evaluation';
   <title><?= htmlspecialchars($pageTitle) ?> | Admin Panel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    #sidebar {
+      transition: transform 0.3s ease-in-out;
+    }
+
+    @media (max-width: 767px) {
+      #sidebar.mobile-hidden {
+        transform: translateX(-100%);
+      }
+    }
+  </style>
 </head>
 
 <body class="bg-gray-100 text-gray-800">
@@ -58,20 +69,18 @@ $pageTitle = 'Performance Evaluation';
     <?php include_once '../includes/header.php'; ?>
 
     <!-- Page Content -->
-    <main class="flex-1 pt-24 px-4 md:px-10 pb-8">
+    <main class="flex-1 pt-20 px-4 md:px-10 pb-8">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">Performance Evaluation</h2>
+        <p class="text-gray-600">Review and update employee performance scores and feedback</p>
+      </div>
       <?php include '../includes/breadcrumb.php'; ?>
 
-      <div class="mx-auto bg-white rounded-2xl shadow-lg p-8 border border-gray-100">
-        <div class="flex items-center justify-between mb-6">
-          <h2 class="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-            <i class="fa-solid fa-chart-line text-blue-600"></i>
-            Employee Performance Review
-          </h2>
-        </div>
+      <div class="mx-auto bg-white rounded-2xl shadow-sm p-8 border border-gray-100">
 
         <?= $message ?>
 
-        <form method="POST" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form method="POST" class="grid grid-cols-1 md:grid-cols-3 gap-6">
           <!-- Select Employee -->
           <div class="md:col-span-2">
             <label class="block text-sm font-medium text-gray-700 mb-2">Select Employee</label>
@@ -104,15 +113,15 @@ $pageTitle = 'Performance Evaluation';
           <?php endforeach; ?>
 
           <!-- Remarks -->
-          <div class="md:col-span-2">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Remarks</label>
+          <div class="md:col-span-3">
+            <label class="w-full block text-sm font-medium text-gray-700 mb-2">Remarks</label>
             <textarea name="remarks" rows="3"
               class="w-full rounded-lg border focus:ring-blue-500 focus:border-blue-500 transition px-3 py-2 shadow-sm resize-none"
               placeholder="Write your remarks about the employee’s performance..."></textarea>
           </div>
 
           <!-- Submit -->
-          <div class="md:col-span-2 flex justify-end">
+          <div class="md:col-span-2 flex justify-start">
             <button type="submit"
               class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg font-semibold shadow-md transition flex items-center gap-2">
               <i class="fa-solid fa-floppy-disk"></i> Save Review
@@ -122,6 +131,9 @@ $pageTitle = 'Performance Evaluation';
       </div>
     </main>
   </div>
+
+  <!-- JS for Sidebar Toggle -->
+  <script src="../assets/js/script.js"></script>
 
 </body>
 

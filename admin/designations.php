@@ -7,26 +7,45 @@ $emp = $_SESSION['user'];
 $message = '';
 $messageType = 'success';
 
-// Handle Add/Edit
+// Handle Add / Update
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $title = trim($_POST['designation']);
+
   if (!empty($title)) {
+    // Check existing
     $stmt = $conn->prepare("SELECT id FROM designations WHERE title=?");
     $stmt->bind_param("s", $title);
     $stmt->execute();
     $res = $stmt->get_result();
 
     if ($res->num_rows == 0 || isset($_POST['edit'])) {
+
+      // Update
       if (isset($_POST['edit'])) {
         $id = (int) $_POST['edit'];
         $stmt = $conn->prepare("UPDATE designations SET title=? WHERE id=?");
         $stmt->bind_param("si", $title, $id);
         $stmt->execute();
+
+        // ✅ Log activity
+        $log = $conn->prepare("INSERT INTO activities (user_id, description, user_name, created_at) VALUES (?, ?, ?, NOW())");
+        $desc = "Updated designation to: $title";
+        $log->bind_param("iss", $_SESSION['user']['id'], $desc, $_SESSION['user']['name']);
+        $log->execute();
+
         $message = "✏️ Designation updated successfully!";
       } else {
+        // Insert
         $stmt = $conn->prepare("INSERT INTO designations (title) VALUES (?)");
         $stmt->bind_param("s", $title);
         $stmt->execute();
+
+        // ✅ Log activity
+        $log = $conn->prepare("INSERT INTO activities (user_id, description, user_name, created_at) VALUES (?, ?, ?, NOW())");
+        $desc = "Added new designation: $title";
+        $log->bind_param("iss", $_SESSION['user']['id'], $desc, $_SESSION['user']['name']);
+        $log->execute();
+
         $message = "✅ Designation added successfully!";
       }
     } else {
@@ -34,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $messageType = 'error';
     }
   }
+
   header("Location: designations.php");
   exit;
 }
@@ -41,10 +61,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Handle Delete
 if (isset($_GET['delete'])) {
   $id = (int) $_GET['delete'];
+
+  // Get designation name before delete
+  $get = $conn->prepare("SELECT title FROM designations WHERE id=?");
+  $get->bind_param("i", $id);
+  $get->execute();
+  $get->bind_result($delTitle);
+  $get->fetch();
+  $get->close();
+
+  // Delete
   $stmt = $conn->prepare("DELETE FROM designations WHERE id=?");
   $stmt->bind_param("i", $id);
   $stmt->execute();
+
+  // ✅ Log activity
+  $log = $conn->prepare("INSERT INTO activities (user_id, description, user_name, created_at) VALUES (?, ?, ?, NOW())");
+  $desc = "Deleted designation: $delTitle";
+  $log->bind_param("iss", $_SESSION['user']['id'], $desc, $_SESSION['user']['name']);
+  $log->execute();
+
   $message = "🗑️ Designation deleted!";
+  header("Location: designations.php");
+  exit;
 }
 
 // Fetch All
@@ -61,7 +100,6 @@ if (isset($_GET['edit'])) {
 }
 
 $pageTitle = "Designations";
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -82,93 +120,69 @@ $pageTitle = "Designations";
         transform: translateX(-100%);
       }
     }
-  </style>
+  </style>  
 </head>
 
 <body class="bg-gray-100">
 
-  <!-- SIDEBAR -->
-  <?php include_once '../includes/sidebar.php'; ?>
-
-  <!-- Overlay for Mobile -->
+  <?php include '../includes/sidebar.php'; ?>
   <div id="overlay" class="fixed inset-0 bg-black opacity-50 hidden z-30 md:hidden"></div>
 
-  <!-- MAIN CONTENT -->
   <div class="flex-1 flex flex-col min-h-screen md:ml-64">
+    <?php include '../includes/header.php'; ?>
 
-    <!-- NAVBAR -->
-    <?php include_once '../includes/header.php'; ?>
-
-    <!-- PAGE CONTENT -->
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
-
-      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900">Designations</h2>
-          <p class="text-gray-600"> Manage job titles and roles across all departments.</p>
-        </div>
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Designations</h2>
+        <p class="text-gray-600">Manage job roles and position titles in your organization.</p>
       </div>
 
-      <!-- Flash Message -->
       <?php if ($message): ?>
         <div class="p-3 mb-4 rounded <?= $messageType == 'error' ? 'bg-red-500' : 'bg-green-500' ?> text-white text-sm">
           <?= $message ?>
         </div>
       <?php endif; ?>
 
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200">
 
-      <!-- Table Card -->
-      <div class="bg-white shadow-sm rounded-lg p-6">
-        <!-- Add / Edit Form Card -->
-        <div class="mb-6">
-          <form method="post" class="flex flex-col md:flex-row gap-2">
+        <div class="p-6 border-b border-gray-200">
+          <form method="post" class="flex flex-col sm:flex-row gap-2">
             <input type="text" name="designation" placeholder="Enter Designation"
-              class="border p-2 rounded flex-grow focus:outline-none focus:ring"
-              value="<?= $edit ? htmlspecialchars($edit['title']) : '' ?>" required>
+              value="<?= $edit ? htmlspecialchars($edit['title']) : '' ?>"
+              class="flex-1 border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500" required>
 
             <?php if ($edit): ?>
               <button type="submit" name="edit" value="<?= $edit['id'] ?>"
-                class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mt-2 md:mt-0 md:ml-2">
-                Update
-              </button>
-              <a href="designations.php"
-                class="px-4 py-2 border rounded text-blue-600 hover:underline mt-2 md:mt-0 md:ml-2">
-                Cancel
-              </a>
+                class="px-4 py-2 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600">Update</button>
+              <a href="designations.php" class="px-4 py-2 border rounded-xl text-gray-600 hover:bg-gray-50">Cancel</a>
             <?php else: ?>
               <button type="submit" name="add"
-                class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 mt-2 md:mt-0 md:ml-2">
-                Add
-              </button>
+                class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Add Designation</button>
             <?php endif; ?>
           </form>
         </div>
 
-        <div class="overflow-x-auto bg-white  rounded-lg border border-gray-200">
+        <div class="overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
-                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Designation</th>
-                <th class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">#</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Designation</th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
-
-            <tbody class="bg-white divide-y divide-gray-200">
+            <tbody class="divide-y">
               <?php while ($row = $result->fetch_assoc()): ?>
                 <tr class="hover:bg-gray-50 transition">
-                  <td class="px-6 py-4 text-gray-700"><?= $row['id'] ?></td>
-                  <td class="px-6 py-4 font-medium text-gray-900"><?= htmlspecialchars($row['title']) ?></td>
+                  <td class="px-6 py-4 text-gray-500"><?= $row['id'] ?></td>
+                  <td class="px-6 py-4 font-medium"><?= htmlspecialchars($row['title']) ?></td>
                   <td class="px-6 py-4">
-                    <div class="flex justify-center flex-wrap gap-2">
-                      <a href="?edit=<?= $row['id'] ?>"
-                        class="inline-flex items-center px-3 py-1.5 bg-yellow-100 text-yellow-700 text-xs font-medium rounded-full hover:bg-yellow-200 transition">
-                        ✏️ Edit
+                    <div class="flex space-x-2">
+                      <a href="?edit=<?= $row['id'] ?>" class="text-yellow-600 hover:text-yellow-800">
+                        <i class="fa-solid fa-pen-to-square"></i>
                       </a>
-                      <a href="?delete=<?= $row['id'] ?>"
-                        onclick="return confirm('Are you sure you want to delete this designation?')"
-                        class="inline-flex items-center px-3 py-1.5 bg-red-100 text-red-700 text-xs font-medium rounded-full hover:bg-red-200 transition">
-                        🗑️ Delete
+                      <a href="?delete=<?= $row['id'] ?>" onclick="return confirm('Delete this designation?')" class="text-red-600 hover:text-red-800">
+                        <i class="fa-solid fa-trash"></i>
                       </a>
                     </div>
                   </td>
@@ -178,22 +192,17 @@ $pageTitle = "Designations";
           </table>
         </div>
 
-        <!-- Back Button -->
-      <div class="mt-6 text-center md:text-left">
-        <a href="dashboard.php"
-          class="text-blue-600 hover:underline flex items-center justify-center md:justify-start">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-          </svg> Back to Dashboard
-        </a>
+        <div class="p-6 border-t border-gray-200">
+          <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 flex items-center text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg> Back to Dashboard
+          </a>
+        </div>
+
       </div>
-      </div>
 
-      
-  </div>
-
-
-  </main>
+    </main>
   </div>
 
   <script src="../assets/js/script.js"></script>

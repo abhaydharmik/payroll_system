@@ -150,20 +150,6 @@ $pageTitle = "My Attendance";
         </form>
       </div>
 
-
-      <!-- Buttons -->
-      <!-- <div class="p-5 flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
-        <h2 class="text-lg sm:text-xl font-semibold text-gray-700">Mark Attendance</h2>
-        <form method="POST" class="flex flex-col sm:flex-row gap-3">
-          <button type="submit" name="clock_in" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg w-full sm:w-auto">
-            <i class="fa fa-sign-in-alt mr-1"></i> Clock In
-          </button>
-          <button type="submit" name="clock_out" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg w-full sm:w-auto">
-            <i class="fa fa-sign-out-alt mr-1"></i> Clock Out
-          </button>
-        </form>
-      </div> -->
-
       <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
         <h3 class="text-lg font-semibold text-gray-900 mb-4">Today's Status</h3>
 
@@ -230,12 +216,10 @@ $pageTitle = "My Attendance";
 
               <a href="./attendance_report.php" target="_blank"
                 class="bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-all flex items-center space-x-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor"
-                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                  class="lucide lucide-download w-4 h-4">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                  <polyline points="7 10 12 15 17 10"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download-icon lucide-download">
+                  <path d="M12 15V3" />
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <path d="m7 10 5 5 5-5" />
                 </svg>
                 <span>Export</span>
               </a>

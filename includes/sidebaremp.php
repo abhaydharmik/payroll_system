@@ -4,7 +4,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
 <!-- Sidebar -->
-<aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white flex flex-col transform mobile-hidden md:translate-x-0 transition-transform duration-300 z-40 shadow-lg">
+<aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white flex flex-col transform mobile-hidden md:translate-x-0 transition-transform duration-300 z-40 shadow-sm">
 
     <!-- Logo / Title -->
     <div class="p-2 md:p-4 border-b">
