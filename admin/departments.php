@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add'])) {
     $stmt->bind_param("s", $name);
     $stmt->execute();
 
-    // ✅ Log Activity
+    //  Log Activity
     $adminId = $_SESSION['user']['id'];
     $adminName = $_SESSION['user']['name'];
     $activity_desc = "Created new department: $name";
@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['update'])) {
     $stmt->bind_param("si", $name, $id);
     $stmt->execute();
 
-    // ✅ Log Activity
+    //  Log Activity
     $adminId = $_SESSION['user']['id'];
     $adminName = $_SESSION['user']['name'];
     $activity_desc = "Updated department to: $name";
@@ -86,7 +86,7 @@ if (isset($_GET['delete'])) {
   $del->bind_param("i", $id);
   $del->execute();
 
-  // ✅ Log Activity
+  //  Log Activity
   $adminId = $_SESSION['user']['id'];
   $adminName = $_SESSION['user']['name'];
   $activity_desc = "Deleted department: $deptName";
@@ -124,17 +124,7 @@ $pageTitle = "Departments";
   <title>Manage Departments | Payroll System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    #sidebar {
-      transition: transform 0.3s ease-in-out;
-    }
-
-    @media (max-width: 767px) {
-      #sidebar.mobile-hidden {
-        transform: translateX(-100%);
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
 <body class="bg-gray-100">
@@ -154,23 +144,51 @@ $pageTitle = "Departments";
 
       <div class="bg-white rounded-xl shadow-sm border border-gray-200">
 
-        <!-- Form -->
+        <!-- FORM -->
         <div class="p-6 border-b border-gray-200">
           <form method="POST" class="flex flex-col sm:flex-row gap-3">
+
             <?php if ($editDept): ?>
               <input type="hidden" name="id" value="<?= $editDept['id'] ?>">
-              <input type="text" name="name" value="<?= htmlspecialchars($editDept['name']) ?>" class="flex-1 border rounded-xl px-4 py-2" required>
-              <button type="submit" name="update" class="px-4 py-2 bg-yellow-500 text-white rounded-xl hover:bg-yellow-600">Update</button>
-              <a href="departments.php" class="px-4 py-2 border rounded-xl text-gray-600 hover:bg-gray-50">Cancel</a>
+
+              <input
+                type="text"
+                name="name"
+                value="<?= htmlspecialchars($editDept['name']) ?>"
+                class="flex-1 border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                required>
+
+              <button type="submit" name="update"
+                class="px-4 py-2 bg-yellow-600 text-white rounded-xl hover:bg-yellow-700">
+                Update
+              </button>
+
+              <a href="departments.php"
+                class="px-4 py-2 border rounded-xl text-gray-600 hover:bg-gray-50">
+                Cancel
+              </a>
+
             <?php else: ?>
-              <input type="text" name="name" placeholder="Department Name" class="flex-1 border rounded-xl px-4 py-2" required>
-              <button type="submit" name="add" class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Add Department</button>
+
+              <input
+                type="text"
+                name="name"
+                placeholder="Department Name"
+                class="flex-1 border rounded-xl px-4 py-2 focus:ring-2 focus:ring-blue-500"
+                required>
+
+              <button type="submit" name="add"
+                class="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">
+                Add Department
+              </button>
+
             <?php endif; ?>
+
           </form>
         </div>
 
-        <!-- Table -->
-        <div class="overflow-x-auto">
+        <!-- DESKTOP TABLE -->
+        <div class="hidden md:block overflow-x-auto">
           <table class="w-full text-sm">
             <thead class="bg-gray-50">
               <tr>
@@ -179,15 +197,24 @@ $pageTitle = "Departments";
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
+
             <tbody class="divide-y">
               <?php while ($row = $result->fetch_assoc()): ?>
                 <tr class="hover:bg-gray-50 transition">
                   <td class="px-6 py-4 text-gray-500"><?= $row['id'] ?></td>
                   <td class="px-6 py-4 font-medium text-gray-900"><?= htmlspecialchars($row['name']) ?></td>
                   <td class="px-6 py-4">
-                    <div class="flex space-x-2">
-                      <a href="departments.php?edit=<?= $row['id'] ?>" class="text-yellow-600 hover:text-yellow-800"><i class="fa-solid fa-pen-to-square"></i></a>
-                      <a href="departments.php?delete=<?= $row['id'] ?>" onclick="return confirm('Delete this department?')" class="text-red-600 hover:text-red-800"><i class="fa-solid fa-trash"></i></a>
+                    <div class="flex space-x-3 text-lg">
+                      <a href="departments.php?edit=<?= $row['id'] ?>"
+                        class="text-yellow-600 hover:text-yellow-800">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                      </a>
+
+                      <a href="departments.php?delete=<?= $row['id'] ?>"
+                        onclick="return confirm('Delete this department?')"
+                        class="text-red-600 hover:text-red-800">
+                        <i class="fa-solid fa-trash"></i>
+                      </a>
                     </div>
                   </td>
                 </tr>
@@ -196,15 +223,60 @@ $pageTitle = "Departments";
           </table>
         </div>
 
+        <!-- MOBILE VIEW -->
+        <div class="md:hidden p-4 space-y-4">
+
+          <?php $result->data_seek(0); // reset pointer 
+          ?>
+          <?php if ($result->num_rows > 0): ?>
+            <?php while ($row = $result->fetch_assoc()): ?>
+
+              <div class="p-4 bg-white rounded-xl shadow border border-gray-200">
+
+                <div class="flex items-center justify-between">
+                  <p class="text-lg font-semibold text-gray-900">
+                    <?= htmlspecialchars($row['name']) ?>
+                  </p>
+
+                  <span class="text-gray-400 text-sm">#<?= $row['id'] ?></span>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div class="flex justify-end gap-6 mt-4 text-xl">
+
+                  <a href="departments.php?edit=<?= $row['id'] ?>"
+                    class="text-yellow-600 hover:text-yellow-800">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </a>
+
+                  <a href="departments.php?delete=<?= $row['id'] ?>"
+                    onclick="return confirm('Delete this department?')"
+                    class="text-red-600 hover:text-red-800">
+                    <i class="fa-solid fa-trash"></i>
+                  </a>
+
+                </div>
+
+              </div>
+
+            <?php endwhile; ?>
+
+          <?php else: ?>
+            <p class="text-center text-gray-500 py-5">No departments found.</p>
+          <?php endif; ?>
+
+        </div>
+
         <div class="p-6 border-t border-gray-200">
           <a href="dashboard.php" class="text-blue-600 hover:text-blue-800 flex items-center text-sm">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
             </svg> Back to Dashboard
           </a>
         </div>
 
       </div>
+
 
     </main>
   </div>

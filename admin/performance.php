@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $stmt->bind_param("issiiiiisid", $user_id, $evaluator, $review_date, $punctuality, $teamwork, $productivity, $quality, $initiative, $remarks, $total_score, $rating);
 
   if ($stmt->execute()) {
-    $message = "<p class='text-green-600 font-semibold bg-green-50 border border-green-200 px-4 py-2 rounded-lg mb-4'>✅ Performance record saved successfully.</p>";
+    $message = "<p class='text-green-600 font-semibold bg-green-50 border border-green-200 px-4 py-2 rounded-lg mb-4'> Performance record saved successfully.</p>";
   } else {
     $message = "<p class='text-red-600 font-semibold bg-red-50 border border-red-200 px-4 py-2 rounded-lg mb-4'>❌ Error saving performance record.</p>";
   }
@@ -44,17 +44,7 @@ $pageTitle = 'Performance Evaluation';
   <title><?= htmlspecialchars($pageTitle) ?> | Admin Panel</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    #sidebar {
-      transition: transform 0.3s ease-in-out;
-    }
-
-    @media (max-width: 767px) {
-      #sidebar.mobile-hidden {
-        transform: translateX(-100%);
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
 <body class="bg-gray-100 text-gray-800">

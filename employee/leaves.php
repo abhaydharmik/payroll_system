@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $stmt = $conn->prepare("INSERT INTO leaves (user_id, leave_type, duration, start_date, end_date, reason) VALUES (?, ?, ?, ?, ?, ?)");
   $stmt->bind_param("isssss", $emp_id, $leave_type, $duration, $start_date, $end_date, $reason);
   if ($stmt->execute()) {
-    $message = "<span class='text-green-600 font-medium'>✅ Leave request submitted successfully!</span>";
+    $message = "<span class='text-green-600 font-medium'> Leave request submitted successfully!</span>";
   } else {
     $message = "<span class='text-red-600 font-medium'>❌ Error: " . $stmt->error . "</span>";
   }
@@ -46,17 +46,7 @@ $pageTitle = "Leaves";
   <title>Leave Requests</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    #sidebar {
-      transition: transform 0.3s ease-in-out;
-    }
-
-    @media (max-width: 767px) {
-      #sidebar.mobile-hidden {
-        transform: translateX(-100%);
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
 <body class="bg-gray-100">
@@ -160,20 +150,25 @@ $pageTitle = "Leaves";
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Range</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
+
             <tbody class="bg-white divide-y divide-gray-200">
               <?php while ($row = $leaves->fetch_assoc()): ?>
                 <tr class="hover:bg-gray-50">
-                  <td class="px-6 py-4 text-sm text-gray-900"><?= htmlspecialchars($row['leave_type']) ?></td>
+
+                  <td class="px-6 py-4 text-sm text-gray-900">
+                    <?= htmlspecialchars($row['leave_type']) ?>
+                  </td>
 
                   <td class="px-6 py-4 text-sm text-gray-900">
                     <?= htmlspecialchars($row['duration']) ?>
                   </td>
 
                   <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                    <?= date("M d, Y", strtotime($row['start_date'])) ?> - <?= date("M d, Y", strtotime($row['end_date'])) ?>
+                    <?= date("M d, Y", strtotime($row['start_date'])) ?>
+                    -
+                    <?= date("M d, Y", strtotime($row['end_date'])) ?>
                   </td>
 
                   <td class="px-6 py-4 text-sm text-gray-700 max-w-xs truncate">
@@ -183,22 +178,20 @@ $pageTitle = "Leaves";
                   <td class="px-6 py-4 whitespace-nowrap">
                     <?php if ($row['status'] == 'Approved'): ?>
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Approved</span>
+
                     <?php elseif ($row['status'] == 'Rejected'): ?>
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Rejected</span>
+
                     <?php else: ?>
                       <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>
                     <?php endif; ?>
                   </td>
 
-                  <td class="px-6 py-4 text-sm">
-                    <button class="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded" title="View">
-                      <i class="fa-solid fa-eye"></i>
-                    </button>
-                  </td>
                 </tr>
               <?php endwhile; ?>
             </tbody>
           </table>
+
         </div>
 
         <!-- Mobile Card View -->
@@ -230,12 +223,6 @@ $pageTitle = "Leaves";
                 <i class="fa-regular fa-comment text-gray-400 mr-1"></i>
                 <?= htmlspecialchars($row['reason']) ?>
               </p>
-
-              <div class="mt-3 pt-3 border-t text-right">
-                <button class="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  <i class="fa-solid fa-eye mr-1"></i> View
-                </button>
-              </div>
             </div>
           <?php endwhile; ?>
         </div>

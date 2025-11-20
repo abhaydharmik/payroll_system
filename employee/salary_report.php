@@ -1,5 +1,6 @@
 <?php
 session_start();
+date_default_timezone_set('Asia/Kolkata');
 require '../config.php';
 
 if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'employee') {
@@ -11,7 +12,7 @@ $emp = $_SESSION['user'];
 $user_id = $emp['id'];
 $name = htmlspecialchars($emp['name']);
 
-// ✅ Fetch salary records
+// Fetch salary records
 $stmt = $conn->prepare("SELECT month, basic, deductions, total, generated_at FROM salaries WHERE user_id = ? ORDER BY generated_at DESC");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -42,7 +43,7 @@ $result = $stmt->get_result();
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135673.png" alt="Logo" class="w-12 h-12">
         <div>
           <h1 class="text-2xl font-semibold text-gray-800">Company Name Pvt. Ltd.</h1>
-          <p class="text-sm text-gray-500">Employee Payroll Management System</p>
+          <p class="text-sm text-gray-500">Employee Salary Report</p>
         </div>
       </div>
       <div class="text-right mt-4 md:mt-0">
@@ -100,7 +101,7 @@ $result = $stmt->get_result();
 
     <!-- Footer -->
     <div class="text-center text-gray-500 text-xs mt-6 border-t border-gray-200 pt-4">
-      <p>© <?= date("Y") ?> Company Name Pvt. Ltd. | Payroll Report System</p>
+      <p>© <?= date("Y") ?> Company Name Pvt. Ltd.</p>
     </div>
   </div>
 

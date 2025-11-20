@@ -10,13 +10,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $confirm_password = $_POST['confirm_password'];
     $role = "employee"; // default role (change if needed)
 
-    // ✅ Check Confirm Password
+    //  Check Confirm Password
     if ($password !== $confirm_password) {
         $message = "<span class='text-red-600 font-medium'>Passwords do not match!</span>";
     } else {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-        // ✅ Check if email exists
+        // Check if email exists
         $check = $conn->prepare("SELECT id FROM users WHERE email=?");
         $check->bind_param("s", $email);
         $check->execute();
@@ -25,14 +25,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($check->num_rows > 0) {
             $message = "<span class='text-red-600 font-medium'>Email already registered!</span>";
         } else {
-            // ✅ Insert user
+            // Insert user
             $stmt = $conn->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("ssss", $name, $email, $hashedPassword, $role);
 
             if ($stmt->execute()) {
                 $user_id = $conn->insert_id;
 
-                // ✅ Log activity
+                // Log activity
                 $desc = "New user registered: $name ($role)";
                 $activity = $conn->prepare("INSERT INTO activities (user_id, description) VALUES (?, ?)");
                 $activity->bind_param("is", $user_id, $desc);
@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       <input type="password" name="password" placeholder="Password" required
         class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
 
-      <!-- ✅ Confirm Password Field -->
+      <!--  Confirm Password Field -->
       <input type="password" name="confirm_password" placeholder="Confirm Password" required
         class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
 

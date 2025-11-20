@@ -50,17 +50,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($pageTitle) ?></title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        #sidebar {
-            transition: transform 0.3s ease-in-out;
-        }
-
-        @media (max-width: 767px) {
-            #sidebar.mobile-hidden {
-                transform: translateX(-100%);
-            }
-        }
-    </style>
+      <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
 <body class="bg-gray-50">

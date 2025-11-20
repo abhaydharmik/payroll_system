@@ -12,6 +12,17 @@ $emp = $_SESSION['user'];
 $user_id = $emp['id'];
 
 // ---------- Stats ----------
+// Get today's attendance record
+$stmt = $conn->prepare("
+    SELECT * 
+    FROM attendance 
+    WHERE user_id = ? 
+      AND date = CURDATE()
+");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$todayRecord = $stmt->get_result()->fetch_assoc();
+
 
 // Present today
 $presentTodayQuery = $conn->prepare("SELECT COUNT(*) as total FROM attendance WHERE user_id=? AND date=CURDATE() AND status='Present'");
@@ -60,11 +71,233 @@ if (isset($salaryData['month'])) {
   $salaryStatusLabel = "Not Generated";
 }
 
-// Recent attendance
-$recentAttendance = $conn->prepare("SELECT date, status FROM attendance WHERE user_id=? ORDER BY date DESC LIMIT 5");
-$recentAttendance->bind_param("i", $user_id);
-$recentAttendance->execute();
-$recentData = $recentAttendance->get_result();
+// ------------------ RECENT ACTIVITIES ------------------
+
+// Recent Leave Requests
+$recentLeavesStmt = $conn->prepare("
+  SELECT id, leave_type, start_date, end_date, status, applied_at 
+  FROM leaves 
+  WHERE user_id=? 
+  ORDER BY applied_at DESC 
+  LIMIT 5
+");
+$recentLeavesStmt->bind_param("i", $user_id);
+$recentLeavesStmt->execute();
+$recentLeaves = $recentLeavesStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+
+// Recent Salaries
+$recentSalaryStmt = $conn->prepare("
+  SELECT month, total, generated_at 
+  FROM salaries 
+  WHERE user_id=? 
+  ORDER BY generated_at DESC 
+  LIMIT 5
+");
+$recentSalaryStmt->bind_param("i", $user_id);
+$recentSalaryStmt->execute();
+$recentSalaries = $recentSalaryStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+
+// Recent Profile Updates
+$recentProfileStmt = $conn->prepare("
+  SELECT created_at 
+  FROM users 
+  WHERE id=? 
+");
+$recentProfileStmt->bind_param("i", $user_id);
+$recentProfileStmt->execute();
+$profileUpdate = $recentProfileStmt->get_result()->fetch_assoc();
+$lastProfileUpdate = $profileUpdate['created_at'] ?? null;
+
+
+// Recent Attendance (optional)
+$recentAttendanceStmt = $conn->prepare("
+  SELECT date, clock_in, clock_out, status 
+  FROM attendance 
+  WHERE user_id=? 
+  ORDER BY date DESC 
+  LIMIT 5
+");
+$recentAttendanceStmt->bind_param("i", $user_id);
+$recentAttendanceStmt->execute();
+$recentAttendanceList = $recentAttendanceStmt->get_result()->fetch_all(MYSQLI_ASSOC);
+
+
+// ------------------ MERGE ALL ACTIVITIES ------------------
+$activities = [];
+
+// Leaves
+foreach ($recentLeaves as $l) {
+  $activities[] = [
+    "type" => "leave",
+    "date" => $l['applied_at'],
+    "data" => $l
+  ];
+}
+
+// Salaries
+foreach ($recentSalaries as $s) {
+  $activities[] = [
+    "type" => "salary",
+    "date" => $s['generated_at'],
+    "data" => $s
+  ];
+}
+
+// Profile updates
+if ($lastProfileUpdate) {
+  $activities[] = [
+    "type" => "profile",
+    "date" => $lastProfileUpdate,
+    "data" => []
+  ];
+}
+
+// Attendance
+foreach ($recentAttendanceList as $a) {
+  $activities[] = [
+    "type" => "attendance",
+    "date" => $a['date'],
+    "data" => $a
+  ];
+}
+
+// Sort by newest first
+usort($activities, function ($a, $b) {
+  return strtotime($b['date']) - strtotime($a['date']);
+});
+
+
+// ------------------ TODAY'S WORK SUMMARY WITH FIXED SHIFT & LATE/EARLY ------------------
+
+// helper already used earlier: dt($time) converts H:i:s to timestamp for today
+// make sure dt() exists; if not, define it (safe re-declaration)
+if (!function_exists('dt')) {
+  function dt($time)
+  {
+    if (!$time) return null;
+    return strtotime(date('Y-m-d') . " " . $time);
+  }
+}
+
+// Today's raw values (TIME columns expected)
+$clockIn   = $todayRecord['clock_in'] ?? null;
+$clockOut  = $todayRecord['clock_out'] ?? null;
+$breakIn   = $todayRecord['break_in'] ?? null;
+$breakOut  = $todayRecord['break_out'] ?? null;
+$breakLabel = $todayRecord['break_duration'] ?? "0m";
+
+// SHIFT definition (fixed 9:00 - 17:00)
+$shiftStart = strtotime(date('Y-m-d') . ' 09:00:00');
+$shiftEnd   = strtotime(date('Y-m-d') . ' 17:00:00');
+$requiredSeconds = 8 * 3600; // 28800
+
+// timestamps for clock in/out (null-safe)
+$clockInTs  = $clockIn ? dt($clockIn) : null;
+$clockOutTs = $clockOut ? dt($clockOut) : null;
+
+// Calculate break seconds (if break columns store TIME)
+$breakSeconds = 0;
+if ($breakIn && $breakOut) {
+  $breakSeconds = max(0, dt($breakOut) - dt($breakIn));
+} elseif ($breakIn && !$breakOut) {
+  // running break
+  $breakSeconds = max(0, time() - dt($breakIn));
+}
+
+// Calculate effective work window inside fixed shift
+$totalWorkSeconds = 0; // default to avoid undefined variable
+
+if ($clockInTs) {
+  // effective start shouldn't be before shift start
+  $effectiveStart = max($clockInTs, $shiftStart);
+
+  // effective end is min(clockOutTs or now, shiftEnd)
+  if ($clockOutTs) {
+    $effectiveEnd = min($clockOutTs, $shiftEnd);
+  } else {
+    // running: take min(current time, shift end)
+    $effectiveEnd = min(time(), $shiftEnd);
+  }
+
+  // compute raw seconds inside shift (can't be negative)
+  $rawWorkSeconds = max(0, $effectiveEnd - $effectiveStart);
+
+  // subtract break seconds that occurred inside shift window
+  // Note: if break overlaps outside shift, this simple subtract is acceptable for single-break usage.
+  $totalWorkSeconds = max(0, $rawWorkSeconds - $breakSeconds);
+
+  // cap to max shift seconds
+  if ($totalWorkSeconds > $requiredSeconds) {
+    $totalWorkSeconds = $requiredSeconds;
+  }
+
+  // format workHours text
+  $workHours = floor($totalWorkSeconds / 3600) . "h " . floor(($totalWorkSeconds % 3600) / 60) . "m";
+  if (!$clockOutTs && time() < $shiftEnd) {
+    $workHours .= " (running)";
+  }
+} else {
+  $workHours = "0h 0m";
+}
+
+// Break duration display
+if ($breakIn && $breakOut) {
+  // prefer stored label if available
+  $breakDuration = $breakLabel ?: sprintf(
+    "%02dh %02dm",
+    floor($breakSeconds / 3600),
+    floor(($breakSeconds % 3600) / 60)
+  );
+} elseif ($breakIn && !$breakOut) {
+  $mins = floor($breakSeconds / 60);
+  $hrs  = floor($mins / 60);
+  $mins = $mins % 60;
+  $breakDuration = sprintf("%02dh %02dm (running)", $hrs, $mins);
+} else {
+  $breakDuration = "0m";
+}
+
+// Overtime (time worked after shift end) — optional, compute from actual clockOutTs
+$overtime = "0h 0m";
+if ($clockOutTs && $clockOutTs > $shiftEnd) {
+  $overtimeSeconds = $clockOutTs - $shiftEnd;
+  $overtime = floor($overtimeSeconds / 3600) . "h " . floor(($overtimeSeconds % 3600) / 60) . "m";
+}
+
+// ------------------ LATE / EARLY / DEFICIT CALCULATION ------------------
+
+$lateBy = "0m";
+$earlyLeave = "0m";
+$workDeficit = "0m";
+
+// LATE ARRIVAL: clockInTs later than shiftStart
+if ($clockInTs && $clockInTs > $shiftStart) {
+  $lateSeconds = $clockInTs - $shiftStart;
+  if ($lateSeconds >= 3600) {
+    $lateBy = floor($lateSeconds / 3600) . "h " . floor(($lateSeconds % 3600) / 60) . "m";
+  } else {
+    $lateBy = floor($lateSeconds / 60) . "m";
+  }
+}
+
+// EARLY LEAVE: clockOutTs earlier than shiftEnd (only if clocked out)
+if ($clockOutTs && $clockOutTs < $shiftEnd) {
+  $earlySeconds = $shiftEnd - $clockOutTs;
+  if ($earlySeconds >= 3600) {
+    $earlyLeave = floor($earlySeconds / 3600) . "h " . floor(($earlySeconds % 3600) / 60) . "m";
+  } else {
+    $earlyLeave = floor($earlySeconds / 60) . "m";
+  }
+}
+
+// WORK DEFICIT: if totalWorkSeconds less than required
+if ($totalWorkSeconds < $requiredSeconds) {
+  $deficitSeconds = $requiredSeconds - $totalWorkSeconds;
+  $workDeficit = floor($deficitSeconds / 3600) . "h " . floor(($deficitSeconds % 3600) / 60) . "m";
+}
+
 
 $pageTitle = "Dashboard";
 
@@ -78,17 +311,7 @@ $pageTitle = "Dashboard";
   <title>Employee Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    #sidebar {
-      transition: transform 0.3s ease-in-out;
-    }
-
-    @media (max-width: 767px) {
-      #sidebar.mobile-hidden {
-        transform: translateX(-100%);
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
 <body class="bg-gray-100">
@@ -109,22 +332,49 @@ $pageTitle = "Dashboard";
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
       <!-- Stats Cards -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-4 mb-8">
-        <!-- Present Today -->
+
+        <!-- Today Attendance Status -->
         <div class="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between border border-gray-200">
+
+          <!-- Left Section -->
           <div>
-            <h3 class="text-gray-500 text-sm">Present Today</h3>
-            <p class="text-2xl font-bold"><?= $presentToday ?></p>
+            <!-- Title matching Leave Balance -->
+            <h3 class="text-gray-500 text-sm">Attendance Status</h3>
+
+            <!-- Main Status Line (big text, like the number in Leave Balance) -->
+            <p class="text-2xl font-bold text-gray-900 mt-1">
+              <?php if ($todayRecord && $todayRecord['clock_in']): ?>
+                <?= date('h:i A', strtotime($todayRecord['clock_in'])) ?>
+              <?php else: ?>
+                <span class="text-red-600">Not Clocked In</span>
+              <?php endif; ?>
+            </p>
+
+            <!-- Small Subtext -->
+            <p class="text-xs text-gray-500 mt-1">
+              Status:
+              <span class="<?= ($todayRecord['status'] ?? '') == 'Present' ? 'text-green-600' : 'text-gray-500' ?> font-semibold">
+                <?= $todayRecord['status'] ?? 'Not Marked' ?>
+              </span>
+            </p>
           </div>
+
+          <!-- Right Icon (Identical Size & Style) -->
           <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-              stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-6 h-6 text-green-600">
-              <path d="M8 2v4"></path>
-              <path d="M16 2v4"></path>
-              <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-              <path d="M3 10h18"></path>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+              fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-calendar w-6 h-6 text-green-600">
+              <path d="M8 2v4" />
+              <path d="M16 2v4" />
+              <rect width="18" height="18" x="3" y="4" rx="2" />
+              <path d="M3 10h18" />
             </svg>
           </div>
+
         </div>
+
+
 
         <!-- Leave Balance -->
         <div class="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between border border-gray-200">
@@ -192,8 +442,8 @@ $pageTitle = "Dashboard";
               <?php if (!empty($reviewDate)) echo "Last Review: $reviewDate"; ?>
             </p>
           </div>
-          <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-            <i class="fa-solid fa-chart-line text-green-600 text-2xl"></i>
+          <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+            <i class="fa-solid fa-chart-line text-yellow-600 text-2xl"></i>
           </div>
         </div>
 
@@ -256,36 +506,180 @@ $pageTitle = "Dashboard";
           </div>
         </div>
 
-        <!-- Recent Attendance -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Attendance</h3>
 
-          <div class="space-y-3">
-            <?php while ($row = $recentData->fetch_assoc()): ?>
+        <!-- Recent Activities -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+          <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Activities</h3>
+
+          <div class="space-y-3 max-h-[20rem] overflow-y-auto scroll-area">
+            <?php foreach ($activities as $act): ?>
               <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div>
-                  <p class="font-medium text-gray-900"><?= date("M d, Y", strtotime($row['date'])) ?></p>
-                  <p class="text-sm text-gray-600">
-                    <?= (!empty($row['clock_in']) && !empty($row['clock_out']))
-                      ? date("h:i A", strtotime($row['clock_in'])) . " - " . date("h:i A", strtotime($row['clock_out']))
-                      : "No time recorded" ?>
-                  </p>
+
+                <!-- LEFT SIDE (ICON + TEXT) -->
+                <div class="flex items-center gap-3">
+
+                  <!-- Icons by type -->
+                  <?php if ($act['type'] == 'leave'): ?>
+                    <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <i class="fa-solid fa-plane-departure text-blue-600"></i>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900">
+                        Leave Request (<?= $act['data']['leave_type'] ?>)
+                      </p>
+                      <p class="text-sm text-gray-600">
+                        <?= $act['data']['start_date'] ?> to <?= $act['data']['end_date'] ?>
+                      </p>
+                    </div>
+
+                  <?php elseif ($act['type'] == 'salary'): ?>
+                    <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                      <i class="fa-solid fa-money-bill text-purple-600"></i>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900">
+                        Salary Generated
+                      </p>
+                      <p class="text-sm text-gray-600">
+                        <?= date("F Y", strtotime($act['data']['month'])) ?> — ₹<?= number_format($act['data']['total']) ?>
+                      </p>
+                    </div>
+
+                  <?php elseif ($act['type'] == 'profile'): ?>
+                    <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                      <i class="fa-solid fa-user-pen text-yellow-600"></i>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900">Profile Updated</p>
+                      <p class="text-sm text-gray-600">
+                        Your profile was updated recently.
+                      </p>
+                    </div>
+
+                  <?php elseif ($act['type'] == 'attendance'): ?>
+                    <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                      <i class="fa-solid fa-calendar-check text-green-600"></i>
+                    </div>
+                    <div>
+                      <p class="font-medium text-gray-900">
+                        Attendance: <?= $act['data']['status'] ?>
+                      </p>
+                      <p class="text-sm text-gray-600">
+                        <?= !empty($act['data']['clock_in']) ? date("h:i A", strtotime($act['data']['clock_in'])) : "--" ?>
+                        -
+                        <?= !empty($act['data']['clock_out']) ? date("h:i A", strtotime($act['data']['clock_out'])) : "--" ?>
+                      </p>
+                    </div>
+                  <?php endif; ?>
                 </div>
 
-                <span class="inline-flex px-2 py-1 rounded-full text-xs font-medium
-            <?= $row['status'] == 'Present' ? 'bg-green-100 text-green-800' : ($row['status'] == 'Leave' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') ?>">
-                  <?= $row['status'] ?>
-                </span>
-              </div>
-            <?php endwhile; ?>
+                <!-- Activity Date -->
+                <div class="text-xs text-gray-500">
+                  <?= date("M d, Y", strtotime($act['date'])) ?>
+                </div>
 
-            <?php if ($recentData->num_rows == 0): ?>
-              <p class="text-gray-500 text-sm text-center py-4">No attendance records found.</p>
+              </div>
+            <?php endforeach; ?>
+
+            <?php if (count($activities) == 0): ?>
+              <p class="text-gray-500 text-sm text-center py-4">No recent activities found.</p>
             <?php endif; ?>
           </div>
         </div>
 
+
+
       </div>
+
+      <!-- Today’s Work Summary -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mt-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <!-- <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg> -->
+          Today’s Work Summary
+        </h3>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+
+          <!-- Clock In -->
+          <div>
+            <p class="text-gray-500 text-sm">Clock In</p>
+            <p class="text-xl font-semibold text-gray-800 mt-1">
+              <?= $clockIn ? date("h:i A", strtotime($clockIn)) : "—" ?>
+            </p>
+          </div>
+
+          <!-- Clock Out -->
+          <div>
+            <p class="text-gray-500 text-sm">Clock Out</p>
+            <p class="text-xl font-semibold text-gray-800 mt-1">
+              <?= $clockOut ? date("h:i A", strtotime($clockOut)) : "—" ?>
+            </p>
+          </div>
+
+          <!-- Work Hours -->
+          <div>
+            <p class="text-gray-500 text-sm">Work Hours</p>
+            <p class="text-xl font-semibold text-gray-800 mt-1">
+              <?= $workHours ?>
+            </p>
+          </div>
+
+          <!-- Break Duration -->
+          <div>
+            <p class="text-gray-500 text-sm">Break Duration</p>
+            <p class="text-xl font-semibold text-gray-800 mt-1"><?= $breakDuration ?></p>
+
+            <?php if ($breakIn): ?>
+              <p class="text-xs text-gray-500 mt-1">
+                In: <?= date("h:i A", strtotime($breakIn)) ?>
+                <?php if ($breakOut): ?>
+                  | Out: <?= date("h:i A", strtotime($breakOut)) ?>
+                <?php else: ?>
+                  | Break Running...
+                <?php endif; ?>
+              </p>
+            <?php endif; ?>
+          </div>
+
+          <!-- Late By -->
+          <div>
+            <p class="text-gray-500 text-sm">Late By</p>
+            <p class="text-xl font-semibold text-red-600 mt-1">
+              <?= $lateBy ?>
+            </p>
+          </div>
+
+          <!-- Early Leave -->
+          <div>
+            <p class="text-gray-500 text-sm">Early Leave</p>
+            <p class="text-xl font-semibold text-red-600 mt-1">
+              <?= $earlyLeave ?>
+            </p>
+          </div>
+
+          <!-- Work Deficit -->
+          <div>
+            <p class="text-gray-500 text-sm">Work Deficit</p>
+            <p class="text-xl font-semibold text-red-600 mt-1">
+              <?= $workDeficit ?>
+            </p>
+          </div>
+
+          <!-- Overtime -->
+          <div>
+            <p class="text-gray-500 text-sm">Overtime</p>
+            <p class="text-xl font-semibold text-green-600 mt-1">
+              <?= $overtime ?>
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+
+
 
     </main>
   </div>

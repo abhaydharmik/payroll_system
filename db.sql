@@ -146,5 +146,5 @@ INSERT INTO departments (name) VALUES ('HR'), ('Finance'), ('IT'), ('Operations'
 INSERT INTO designations (title) VALUES ('Manager'), ('Accountant'), ('Developer'), ('Intern');
 
 -- ===============================
--- DONE ✅
+-- DONE 
 -- ===============================

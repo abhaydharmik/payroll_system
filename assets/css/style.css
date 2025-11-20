@@ -3,149 +3,39 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: Arial, sans-serif;
-}
-
-/* Body */
-body {
-    background: #f9f9f9;
-    color: #333;
-    font-size: 16px;
-    line-height: 1.5;
-}
-
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    display: flex;
-}
-
-/* Sidebar */
-.sidebar {
-    width: 220px;
-    background: #1a1a1a;
-    color: white;
-    height: 100vh;
-    position: fixed;
-    top: 0;
-    left: 0;
-    padding: 20px;
-}
-
-.sidebar h2 {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 18px;
-}
-
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
-
-.sidebar ul li {
-    margin: 15px 0;
-}
-
-.sidebar ul li a {
-    color: white;
-    text-decoration: none;
-    display: block;
-    padding: 10px;
-    border-radius: 5px;
-}
-
-.sidebar ul li a:hover {
-    background: #444;
-}
-
-/* Main content */
-.main-content {
-    margin-left: 240px;
-    padding: 20px;
-    width: 100%;
+    /* font-family: Arial, sans-serif; */
 }
 
 
-/* Navbar */
-.navbar {
-    background: #2c3e50;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+#sidebar {
+    transition: transform 0.3s ease-in-out;
 }
 
-.navbar a {
-    color: #ecf0f1;
-    text-decoration: none;
-    margin: 0 12px;
-    font-weight: bold;
+
+
+@media (max-width: 767px) {
+    #sidebar.mobile-hidden {
+        transform: translateX(-100%);
+    }
 }
 
-.navbar a:hover {
-    text-decoration: underline;
+
+
+/* Smooth hover transition globally */
+.smooth {
+    transition: all 0.25s ease;
 }
 
-/* Container */
-.container {
-    padding: 20px;
-    max-width: 1000px;
-    margin: auto;
+/* Premium scrollbar */
+.scroll-area::-webkit-scrollbar {
+    width: 6px;
 }
 
-/* Forms */
-form {
-    background: #fff;
-    padding: 20px;
-    margin: 15px 0;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+.scroll-area::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 9999px;
 }
 
-form input, form select, form textarea, form button {
-    width: 100%;
-    padding: 10px;
-    margin: 8px 0;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-}
-
-form button {
-    background: #3498db;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-}
-
-form button:hover {
-    background: #2980b9;
-}
-
-/* Tables */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    background: #fff;
-}
-
-table th, table td {
-    border: 1px solid #ddd;
-    padding: 10px;
-    text-align: left;
-}
-
-table th {
-    background: #34495e;
-    color: #fff;
-}
-
-/* Footer */
-footer {
-    background: #2c3e50;
-    color: #ecf0f1;
-    padding: 12px;
-    text-align: center;
-    margin-top: 20px;
+.scroll-area::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
 }

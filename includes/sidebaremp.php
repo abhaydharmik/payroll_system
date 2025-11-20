@@ -4,7 +4,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
 <!-- Sidebar -->
-<aside id="sidebar" class="fixed inset-y-0 left-0 w-64 bg-white flex flex-col transform mobile-hidden md:translate-x-0 transition-transform duration-300 z-40 shadow-sm">
+<aside id="sidebar" class="fixed h-screen inset-y-0 left-0 w-64 bg-white flex flex-col transform mobile-hidden md:translate-x-0 transition-transform duration-300 z-40 shadow-sm">
 
     <!-- Logo / Title -->
     <div class="p-2 md:p-4 border-b">
@@ -25,7 +25,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart3 w-5 h-5"><path d="M3 3v18h18"></path><path d="M18 17V9"></path><path d="M13 17V5"></path><path d="M8 17v-3"></path></svg>'
             ],
             'profile.php' => [
-                'title' => 'Profile',
+                'title' => 'My Profile',
                 'icon'  => '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user w-5 h-5"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>'
             ],
             'attendance.php' => [

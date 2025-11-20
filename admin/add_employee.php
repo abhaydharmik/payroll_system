@@ -19,10 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $stmt->bind_param("sssi", $name, $email, $password, $department_id);
 
   if ($stmt->execute()) {
-    // ✅ Get the ID of the newly added employee
+    //  Get the ID of the newly added employee
     $new_user_id = $stmt->insert_id;
 
-    // ✅ Log activity (by the admin who added)
+    //  Log activity (by the admin who added)
     $addedBy = $_SESSION['user']['name'];
     $addedById = $_SESSION['user']['id'];
     $activity = "Added new employee: $name";

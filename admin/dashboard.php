@@ -10,7 +10,7 @@ $totalEmployees = $conn->query("SELECT COUNT(*) as total FROM users WHERE role='
 $presentToday   = $conn->query("SELECT COUNT(*) as present FROM attendance WHERE date=CURDATE() AND status='Present'")->fetch_assoc()['present'];
 $pendingLeaves  = $conn->query("SELECT COUNT(*) as leaves FROM leaves WHERE status='Pending'")->fetch_assoc()['leaves'];
 
-// ✅ FIXED: Monthly Payroll (auto detects current month from generated_at column)
+//  FIXED: Monthly Payroll (auto detects current month from generated_at column)
 $monthlyPayrollQuery = $conn->query("
     SELECT COALESCE(SUM(total), 0) AS total
     FROM salaries
@@ -54,36 +54,7 @@ $pageTitle = "Dashboard"
   <title>Admin Dashboard | Payroll System</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <style>
-    #sidebar {
-      transition: transform 0.3s ease-in-out;
-    }
-
-    @media (max-width: 767px) {
-      #sidebar.mobile-hidden {
-        transform: translateX(-100%);
-      }
-    }
-
-    /* Smooth hover transition globally */
-    .smooth {
-      transition: all 0.25s ease;
-    }
-
-    /* Premium scrollbar */
-    .scroll-area::-webkit-scrollbar {
-      width: 6px;
-    }
-
-    .scroll-area::-webkit-scrollbar-thumb {
-      background: #d1d5db;
-      border-radius: 9999px;
-    }
-
-    .scroll-area::-webkit-scrollbar-thumb:hover {
-      background: #9ca3af;
-    }
-  </style>
+  <link rel="stylesheet" href="../assets/css/style.css">
 </head>
 
 <body class="bg-gray-100">
@@ -201,7 +172,7 @@ $pageTitle = "Dashboard"
           <h3 class="text-base font-semibold text-gray-900 mb-3">Department Overview</h3>
 
           <?php if ($departments->num_rows > 0): ?>
-            <div class="space-y-3">
+            <div class="space-y-3 max-h-[23rem] overflow-y-auto scroll-area">
               <?php while ($d = $departments->fetch_assoc()): ?>
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-all">
                   <div>
