@@ -1,9 +1,7 @@
 <?php
-// employee_sidebar.php
 $currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
-<!-- Sidebar -->
 <aside id="sidebar" class="fixed h-screen inset-y-0 left-0 w-64 bg-white flex flex-col transform mobile-hidden md:translate-x-0 transition-transform duration-300 z-40 shadow-sm">
 
     <!-- Logo / Title -->

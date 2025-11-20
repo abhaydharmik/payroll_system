@@ -6,10 +6,6 @@ if (session_status() === PHP_SESSION_NONE) {
 // Set default page title if not already defined
 $pageTitle = isset($pageTitle) ? $pageTitle : 'Dashboard';
 
-// Example: replace with your session or DB data
-// $emp = [
-//     'name' => $_SESSION['name'] ?? 'Admin'
-// ];
 ?>
 
 <!-- Header -->
