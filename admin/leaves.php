@@ -104,7 +104,7 @@ $pageTitle = "Leaves";
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Reason</th>
                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Applied</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status / Action</th>
               </tr>
             </thead>
 
@@ -129,9 +129,29 @@ $pageTitle = "Leaves";
                     <td class="px-6 py-4 max-w-xs truncate"><?= htmlspecialchars($row['reason']) ?></td>
                     <td class="px-6 py-4"><?= date("d M Y, h:i A", strtotime($row['applied_at'])) ?></td>
                     <td class="px-6 py-4">
-                      <span class="px-2 py-1 text-xs font-semibold rounded-full <?= $badge ?>">
-                        <?= $row['status'] ?>
-                      </span>
+                      <div class="flex items-center space-x-2">
+                        <span class="px-2 py-1 text-xs font-semibold rounded-full <?= $badge ?>">
+                          <?= $row['status'] ?>
+                        </span>
+
+                        <?php if ($row['status'] === 'Pending'): ?>
+                          <form method="post" class="inline-block">
+                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                            <input type="hidden" name="action" value="approve">
+                            <button class="bg-green-600 text-white text-xs px-3 py-1 rounded-md hover:bg-green-700">
+                              Approve
+                            </button>
+                          </form>
+
+                          <form method="post" class="inline-block">
+                            <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                            <input type="hidden" name="action" value="reject">
+                            <button class="bg-red-600 text-white text-xs px-3 py-1 rounded-md hover:bg-red-700">
+                              Reject
+                            </button>
+                          </form>
+                        <?php endif; ?>
+                      </div>
                     </td>
                   </tr>
 
@@ -186,7 +206,28 @@ $pageTitle = "Leaves";
                   <?= date("d M Y, h:i A", strtotime($row['applied_at'])) ?>
                 </div>
 
+                <?php if ($row['status'] === 'Pending'): ?>
+                <div class="flex gap-2">
+                  <form method="post" class="flex-1">
+                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                    <input type="hidden" name="action" value="approve">
+                    <button class="w-full bg-green-600 text-white py-2 rounded-lg text-sm hover:bg-green-700">
+                      Approve
+                    </button>
+                  </form>
+
+                  <form method="post" class="flex-1">
+                    <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                    <input type="hidden" name="action" value="reject">
+                    <button class="w-full bg-red-600 text-white py-2 rounded-lg text-sm hover:bg-red-700">
+                      Reject
+                    </button>
+                  </form>
+                </div>
+                <?php endif; ?>
+
               </div>
+
             <?php endwhile; ?>
           <?php else: ?>
             <p class="text-center text-gray-500 py-5">No leave requests found.</p>
