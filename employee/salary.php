@@ -14,7 +14,7 @@ $stmt->bind_param("i", $emp_id);
 $stmt->execute();
 $salaries = $stmt->get_result();
 
-$pageTitle = "My Salary";
+$pageTitle = "My Salary Slips";
 
 
 ?>

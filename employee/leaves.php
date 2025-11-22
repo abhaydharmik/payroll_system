@@ -32,7 +32,7 @@ $stmt->bind_param("i", $emp_id);
 $stmt->execute();
 $leaves = $stmt->get_result();
 
-$pageTitle = "Leaves";
+$pageTitle = "My Leaves";
 
 
 ?>
@@ -67,7 +67,7 @@ $pageTitle = "Leaves";
     <main class="flex-1 pt-20 px-4 md:px-8 pb-8">
       <!-- Page Header -->
       <div class="mb-6">
-        <h2 class="text-2xl font-bold text-gray-800">Leave Management</h2>
+        <h2 class="text-2xl font-bold text-gray-800">My Leaves</h2>
         <p class="text-gray-500 text-sm">Submit and track your leave applications</p>
       </div>
 
